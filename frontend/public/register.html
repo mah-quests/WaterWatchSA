@@ -112,6 +112,14 @@
     .btn-submit:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
     .btn-submit:disabled { background: var(--border); cursor: not-allowed; }
 
+    .skip-link {
+      text-align: center;
+      font-size: .85rem;
+      color: var(--muted);
+      margin-top: 1rem;
+    }
+    .skip-link a { color: var(--blue); }
+
     @media (max-width: 480px) {
       .card { padding: 1.25rem; }
       .row-2 { flex-direction: column; gap: 0; }
@@ -288,6 +296,11 @@
       <p class="field-error" id="err-terms">You must accept the terms to register.</p>
 
       <button type="submit" class="btn-submit" id="submitBtn">Create account</button>
+
+      <p class="skip-link">
+        Just browsing?
+        <a href="map.html">Continue without registering &rarr;</a>
+      </p>
 
     </form>
   </div>
