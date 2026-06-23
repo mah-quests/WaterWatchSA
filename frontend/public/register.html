@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register — WaterWatch SA</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
+    }
+
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--blue-dark);
+      margin-bottom: .25rem;
+    }
+    .card-subtitle {
+      font-size: .875rem;
+      color: var(--muted);
+      margin-bottom: 1.75rem;
+    }
+
+    .section-label {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--blue);
+      border-bottom: 1px solid var(--blue-light);
+      padding-bottom: .35rem;
+      margin: 1.5rem 0 1rem;
+    }
+    .section-label:first-of-type { margin-top: 0; }
+
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: "▾";
+      position: absolute;
+      right: .8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .row-2 { display: flex; gap: .75rem; }
+    .row-2 .field { flex: 1; }
+
+    .strength-bar {
+      display: flex;
+      gap: 4px;
+      margin-top: .4rem;
+    }
+    .strength-bar span {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      transition: background .25s;
+    }
+    .strength-bar.s1 span:nth-child(1)    { background: var(--error); }
+    .strength-bar.s2 span:nth-child(-n+2) { background: #e67e22; }
+    .strength-bar.s3 span:nth-child(-n+3) { background: #f1c40f; }
+    .strength-bar.s4 span:nth-child(-n+4) { background: var(--green); }
+    .strength-text { font-size: .75rem; color: var(--muted); margin-top: .25rem; }
+
+    .checkbox-group { display: flex; flex-direction: column; gap: .5rem; }
+    .checkbox-item  { display: flex; align-items: center; gap: .55rem; font-size: .9rem; cursor: pointer; }
+    .checkbox-item input[type="checkbox"] {
+      width: 1.1rem; height: 1.1rem;
+      flex-shrink: 0; cursor: pointer;
+      accent-color: var(--blue);
+    }
+
+    .terms-row {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      font-size: .85rem;
+      color: var(--muted);
+      margin-top: 1.4rem;
+    }
+    .terms-row input { margin-top: 2px; flex-shrink: 0; accent-color: var(--blue); }
+    .terms-row a { color: var(--blue); }
+
+    .btn-submit {
+      width: 100%;
+      margin-top: 1.4rem;
+      padding: .8rem;
+      background: var(--blue);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+    }
+    .btn-submit:hover  { background: var(--blue-dark); }
+    .btn-submit:active { transform: scale(.98); }
+    .btn-submit:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+    .btn-submit:disabled { background: var(--border); cursor: not-allowed; }
+
+    @media (max-width: 480px) {
+      .card { padding: 1.25rem; }
+      .row-2 { flex-direction: column; gap: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+    <circle cx="16" cy="16" r="16" fill="rgba(255,255,255,.15)"/>
+    <path d="M16 6 C16 6 8 14 8 19 a8 8 0 0 0 16 0 C24 14 16 6 16 6Z" fill="white"/>
+  </svg>
+  <div>
+    <h1>WaterWatch SA</h1>
+    <p>Water visibility for every South African</p>
+  </div>
+</header>
+
+<main>
+  <div class="card">
+    <h2 class="card-title">Create your account</h2>
+    <p class="card-subtitle">Register to report outages, receive alerts, and track water quality in your community.</p>
+
+    <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+    <form id="registrationForm" novalidate>
+
+      <p class="section-label">Personal details</p>
+
+      <div class="row-2">
+        <div class="field">
+          <label for="firstName">First name <span class="required" aria-label="required">*</span></label>
+          <input id="firstName" name="firstName" type="text"
+                 autocomplete="given-name" placeholder="Sipho" required />
+          <p class="field-error" id="err-firstName">Please enter your first name.</p>
+        </div>
+        <div class="field">
+          <label for="lastName">Last name <span class="required" aria-label="required">*</span></label>
+          <input id="lastName" name="lastName" type="text"
+                 autocomplete="family-name" placeholder="Dlamini" required />
+          <p class="field-error" id="err-lastName">Please enter your last name.</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email address <span class="required" aria-label="required">*</span></label>
+        <input id="email" name="email" type="email"
+               autocomplete="email" placeholder="sipho@example.co.za" required />
+        <p class="field-error" id="err-email">Please enter a valid email address.</p>
+      </div>
+
+      <div class="field">
+        <label for="phone">
+          Mobile number <span class="required" aria-label="required">*</span>
+          <span class="hint"> — used for SMS outage alerts</span>
+        </label>
+        <input id="phone" name="phone" type="tel"
+               autocomplete="tel" placeholder="0821234567" pattern="^0[0-9]{9}$" required />
+        <p class="field-error" id="err-phone">Enter a 10-digit South African mobile number starting with 0.</p>
+      </div>
+
+      <div class="field">
+        <label for="password">Password <span class="required" aria-label="required">*</span></label>
+        <input id="password" name="password" type="password"
+               autocomplete="new-password" placeholder="Min. 8 characters" required minlength="8" />
+        <div class="strength-bar" id="strengthBar" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <p class="strength-text" id="strengthText"></p>
+        <p class="field-error" id="err-password">Password must be at least 8 characters.</p>
+      </div>
+
+      <div class="field">
+        <label for="confirmPassword">Confirm password <span class="required" aria-label="required">*</span></label>
+        <input id="confirmPassword" name="confirmPassword" type="password"
+               autocomplete="new-password" placeholder="Repeat your password" required />
+        <p class="field-error" id="err-confirmPassword">Passwords do not match.</p>
+      </div>
+
+      <p class="section-label">Your community</p>
+
+      <div class="field">
+        <label for="province">Province <span class="required" aria-label="required">*</span></label>
+        <div class="select-wrap">
+          <select id="province" name="province" required>
+            <option value="">— Select province —</option>
+            <option>Eastern Cape</option>
+            <option>Free State</option>
+            <option>Gauteng</option>
+            <option>KwaZulu-Natal</option>
+            <option>Limpopo</option>
+            <option>Mpumalanga</option>
+            <option>Northern Cape</option>
+            <option>North West</option>
+            <option>Western Cape</option>
+          </select>
+        </div>
+        <p class="field-error" id="err-province">Please select your province.</p>
+      </div>
+
+      <div class="field">
+        <label for="municipality">Municipality <span class="required" aria-label="required">*</span></label>
+        <input id="municipality" name="municipality" type="text"
+               placeholder="e.g. eThekwini, City of Tshwane" required />
+        <p class="field-error" id="err-municipality">Please enter your municipality.</p>
+      </div>
+
+      <div class="field">
+        <label for="suburb">Suburb / Community <span class="required" aria-label="required">*</span></label>
+        <input id="suburb" name="suburb" type="text"
+               placeholder="e.g. Umlazi, Soweto, Mitchell's Plain" required />
+        <p class="field-error" id="err-suburb">Please enter your suburb or community name.</p>
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label for="streetAddress">Street address <span class="hint">(optional)</span></label>
+          <input id="streetAddress" name="streetAddress" type="text"
+                 autocomplete="street-address" placeholder="123 Main Street" />
+        </div>
+        <div class="field">
+          <label for="postalCode">Postal code <span class="hint">(optional)</span></label>
+          <input id="postalCode" name="postalCode" type="text"
+                 placeholder="0001" maxlength="4" pattern="[0-9]{4}" />
+        </div>
+      </div>
+
+      <p class="section-label">Preferences</p>
+
+      <div class="field">
+        <label for="language">Preferred language</label>
+        <div class="select-wrap">
+          <select id="language" name="language">
+            <option value="en" selected>English</option>
+            <option value="zu">isiZulu</option>
+            <option value="xh">isiXhosa</option>
+            <option value="af">Afrikaans</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <fieldset style="border:none;padding:0">
+          <legend style="font-size:.875rem;font-weight:600;margin-bottom:.5rem">
+            How would you like to receive alerts?
+          </legend>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" name="alertSms" value="sms" checked />
+              SMS (recommended for low-connectivity areas)
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="alertEmail" value="email" checked />
+              Email
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="alertPush" value="push" />
+              Push notifications (mobile app)
+            </label>
+          </div>
+        </fieldset>
+      </div>
+
+      <label class="terms-row">
+        <input type="checkbox" id="terms" name="terms" required />
+        <span>
+          I agree to the <a href="#" target="_blank">Terms of Use</a> and
+          <a href="#" target="_blank">Privacy Policy</a>.
+          My personal information will be handled in accordance with
+          <strong>POPIA</strong>.
+        </span>
+      </label>
+      <p class="field-error" id="err-terms">You must accept the terms to register.</p>
+
+      <button type="submit" class="btn-submit" id="submitBtn">Create account</button>
+
+    </form>
+  </div>
+</main>
+
+<footer>
+  &copy; 2026 WaterWatch SA &nbsp;·&nbsp; Derivco Graduate Programme
+</footer>
+
+<script src="script.js"></script>
+<script>
+  const form  = document.getElementById('registrationForm');
+  const toast = document.getElementById('toast');
+
+  const pwInput      = document.getElementById('password');
+  const strengthBar  = document.getElementById('strengthBar');
+  const strengthText = document.getElementById('strengthText');
+  const STRENGTH_LABELS = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+
+  function calcStrength(pw) {
+    let score = 0;
+    if (pw.length >= 8)  score++;
+    if (pw.length >= 12) score++;
+    if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    return Math.min(4, score);
+  }
+
+  pwInput.addEventListener('input', () => {
+    const score = calcStrength(pwInput.value);
+    strengthBar.className = 'strength-bar' + (pwInput.value ? ` s${score}` : '');
+    strengthText.textContent = pwInput.value ? STRENGTH_LABELS[score] : '';
+  });
+
+  function validate() {
+    let ok = true;
+    const fields = [
+      { id: 'firstName',       err: 'err-firstName',       test: v => v.trim().length > 0 },
+      { id: 'lastName',        err: 'err-lastName',        test: v => v.trim().length > 0 },
+      { id: 'email',           err: 'err-email',           test: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+      { id: 'phone',           err: 'err-phone',           test: v => /^0[0-9]{9}$/.test(v.replace(/\s/g, '')) },
+      { id: 'password',        err: 'err-password',        test: v => v.length >= 8 },
+      { id: 'confirmPassword', err: 'err-confirmPassword', test: v => v === pwInput.value },
+      { id: 'province',        err: 'err-province',        test: v => v !== '' },
+      { id: 'municipality',    err: 'err-municipality',    test: v => v.trim().length > 0 },
+      { id: 'suburb',          err: 'err-suburb',          test: v => v.trim().length > 0 },
+    ];
+
+    fields.forEach(({ id, err, test }) => {
+      const pass = test(document.getElementById(id).value);
+      setFieldError(id, err, !pass);
+      if (!pass) ok = false;
+    });
+
+    const termsOk = document.getElementById('terms').checked;
+    setFieldError('terms', 'err-terms', !termsOk);
+    if (!termsOk) ok = false;
+
+    return ok;
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    toast.className = 'toast';
+    toast.textContent = '';
+
+    if (!validate()) {
+      showToast(toast, 'error', 'Please fix the errors above before continuing.');
+      return;
+    }
+
+    const data = Object.fromEntries(new FormData(form).entries());
+    data.alertSms   = form.alertSms.checked;
+    data.alertEmail = form.alertEmail.checked;
+    data.alertPush  = form.alertPush.checked;
+    console.log('[WaterWatch SA] Registration payload:', data);
+
+    document.getElementById('submitBtn').disabled = true;
+    showToast(toast, 'success', `Welcome, ${data.firstName}! Your account has been registered. (No backend connected yet — data logged to console.)`);
+  });
+
+  form.addEventListener('blur', (e) => {
+    if (!e.target.name) return;
+    if (document.getElementById('err-' + e.target.name)) validate();
+  }, true);
+</script>
+</body>
+</html>
