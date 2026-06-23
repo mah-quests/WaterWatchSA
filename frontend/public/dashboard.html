@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — WaterWatch SA</title>
+  <link rel="stylesheet" href="shared/style.css" />
+</head>
+<body>
+
+<!-- ── Navigation ───────────────────────────────────────────────────────── -->
+<nav class="ww-nav" role="navigation" aria-label="Main navigation">
+  <a class="ww-nav__brand" href="dashboard.html">
+    <span class="ww-nav__brand-icon" aria-hidden="true">💧</span>
+    WaterWatch SA
+  </a>
+
+  <button class="ww-nav__toggle" id="nav-toggle" aria-label="Toggle menu">☰</button>
+
+  <ul class="ww-nav__links" id="nav-links" role="list">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="map.html">Live Map</a></li>
+    <li><a href="report-outage.html">Report Outage</a></li>
+    <li><a href="water-quality.html">Water Quality</a></li>
+    <li><a href="alerts.html">Alerts</a></li>
+    <li><a href="municipal.html">Municipal</a></li>
+  </ul>
+
+  <div class="ww-nav__end">
+    <span class="ww-nav__user hidden" id="nav-user"></span>
+    <a class="btn btn--sm btn--outline" href="login.html" id="nav-login" style="color:#fff;border-color:rgba(255,255,255,.5)">Sign in</a>
+    <a class="btn btn--sm btn--ghost" href="#" id="nav-logout" style="color:#fff;border-color:rgba(255,255,255,.3)" aria-label="Sign out">Sign out</a>
+  </div>
+</nav>
+
+<!-- ── Main ─────────────────────────────────────────────────────────────── -->
+<main class="ww-page">
+
+  <!-- Page header -->
+  <div class="ww-page__header flex justify-between items-center">
+    <div>
+      <h1 class="ww-page__title">Dashboard</h1>
+      <p class="ww-page__subtitle">Real-time water outage visibility for South Africa</p>
+    </div>
+    <a class="btn btn--primary" href="report-outage.html">+ Report Outage</a>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid" id="stats-grid">
+    <div class="stat-card">
+      <span class="stat-card__label">Total Outages</span>
+      <span class="stat-card__value" id="stat-total">—</span>
+      <span class="stat-card__sub">all time</span>
+    </div>
+    <div class="stat-card stat-card--red">
+      <span class="stat-card__label">Active Outages</span>
+      <span class="stat-card__value" id="stat-active">—</span>
+      <span class="stat-card__sub">reported or in progress</span>
+    </div>
+    <div class="stat-card stat-card--green">
+      <span class="stat-card__label">Resolved Today</span>
+      <span class="stat-card__value" id="stat-resolved">—</span>
+      <span class="stat-card__sub">last 24 hours</span>
+    </div>
+    <div class="stat-card stat-card--yellow">
+      <span class="stat-card__label">Water Quality Alerts</span>
+      <span class="stat-card__value" id="stat-quality">—</span>
+      <span class="stat-card__sub">caution or unsafe areas</span>
+    </div>
+  </div>
+
+  <!-- Alert banner (shown only when API is unreachable) -->
+  <div id="page-alert" class="alert mb-4"></div>
+
+  <div class="grid-2" style="align-items: start; gap: 1.5rem;">
+
+    <!-- Recent outages -->
+    <div>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="font-bold" style="font-size:1rem;color:var(--blue-dark)">Recent Outages</h2>
+        <a class="btn btn--sm btn--secondary" href="map.html">View map</a>
+      </div>
+      <div class="outage-list" id="outage-list">
+        <!-- JS-rendered -->
+        <div class="spinner" id="outage-spinner"></div>
+      </div>
+    </div>
+
+    <!-- Water quality summary -->
+    <div class="card">
+      <h2 class="card__title">Water Quality Status</h2>
+      <div id="quality-list">
+        <div class="spinner"></div>
+      </div>
+      <div class="mt-4">
+        <a class="btn btn--sm btn--outline w-full" href="water-quality.html">Full quality report →</a>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer class="ww-footer">
+  &copy; 2026 WaterWatch SA &nbsp;·&nbsp; Derivco Graduate Programme
+</footer>
+
+<script src="shared/api.js"></script>
+<script>
+  api.ui.initNav();
+
+  const outageList   = document.getElementById('outage-list');
+  const qualityList  = document.getElementById('quality-list');
+  const alertEl      = document.getElementById('page-alert');
+
+  async function loadStats() {
+    try {
+      const [outageData, qualityData] = await Promise.all([
+        api.outages.list({ limit: 50 }),
+        api.waterQuality.list({ limit: 20 }),
+      ]);
+
+      const all      = outageData.outages || [];
+      const active   = all.filter(o => ['reported','investigating','in_progress'].includes(o.status));
+      const resolved = all.filter(o => {
+        if (o.status !== 'resolved') return false;
+        const d = new Date(o.updated_at || o.created_at);
+        return (Date.now() - d.getTime()) < 86400000;
+      });
+      const qualityAlerts = (qualityData.records || []).filter(r => ['caution','unsafe'].includes(r.status));
+
+      document.getElementById('stat-total').textContent    = all.length;
+      document.getElementById('stat-active').textContent   = active.length;
+      document.getElementById('stat-resolved').textContent = resolved.length;
+      document.getElementById('stat-quality').textContent  = qualityAlerts.length;
+
+      renderOutages(all.slice(0, 6));
+      renderQuality(qualityData.records || []);
+    } catch (err) {
+      api.ui.setAlert(alertEl,
+        'Could not reach the WaterWatch API. Make sure the backend is running (npm start in /backend).',
+        'warn');
+      renderOutages([]);
+      renderQuality([]);
+    }
+  }
+
+  function renderOutages(items) {
+    document.getElementById('outage-spinner')?.remove();
+    if (!items.length) {
+      outageList.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state__icon">📭</div>
+          <div class="empty-state__title">No outages yet</div>
+          <div class="empty-state__text">Be the first to report one.</div>
+          <a class="btn btn--primary" href="report-outage.html">Report Outage</a>
+        </div>`;
+      return;
+    }
+
+    outageList.innerHTML = items.map(o => `
+      <div class="outage-card" onclick="location.href='map.html?id=${o.id}'">
+        <div class="outage-card__indicator outage-card__indicator--${o.severity}"></div>
+        <div class="outage-card__body">
+          <div class="outage-card__title">${escHtml(o.title)}</div>
+          <div class="outage-card__meta">
+            <span>${escHtml(o.suburb || o.municipality || o.province || 'Unknown area')}</span>
+            <span>${api.ui.formatDate(o.created_at)}</span>
+          </div>
+          <div class="outage-card__badges">
+            <span class="badge badge--${o.status}">${api.ui.statusLabel(o.status)}</span>
+            <span class="badge badge--${o.severity}">${api.ui.severityLabel(o.severity)}</span>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderQuality(records) {
+    if (!records.length) {
+      qualityList.innerHTML = `<p class="text-muted text-sm">No quality data available.</p>`;
+      return;
+    }
+    qualityList.innerHTML = `
+      <div class="table-wrap">
+        <table class="ww-table">
+          <thead>
+            <tr>
+              <th>Area</th>
+              <th>Status</th>
+              <th>Updated</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${records.slice(0, 8).map(r => `
+              <tr>
+                <td>${escHtml(r.suburb || r.municipality || r.province)}</td>
+                <td><span class="badge badge--${r.status}">${api.ui.qualityLabel(r.status)}</span></td>
+                <td class="text-muted text-xs">${api.ui.formatDate(r.created_at)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  loadStats();
+</script>
+</body>
+</html>

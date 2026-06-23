@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register — WaterWatch SA</title>
+  <link rel="stylesheet" href="shared/style.css" />
+</head>
+<body>
+
+<nav class="ww-nav">
+  <a class="ww-nav__brand" href="dashboard.html">
+    <span class="ww-nav__brand-icon">💧</span>
+    WaterWatch SA
+  </a>
+  <div class="ww-nav__end">
+    <span class="text-sm" style="color:rgba(255,255,255,.7)">Already have an account?</span>
+    <a class="btn btn--sm btn--outline" href="login.html" style="color:#fff;border-color:rgba(255,255,255,.5)">Sign in</a>
+  </div>
+</nav>
+
+<main class="ww-page ww-page--narrow">
+  <div class="card card--lg">
+    <h1 class="card__title" style="font-size:1.3rem">Create your account</h1>
+    <p class="text-muted text-sm mb-4">Register to report outages, receive alerts, and track water quality in your community.</p>
+
+    <div id="reg-alert" class="alert mb-4"></div>
+
+    <form id="registrationForm" novalidate>
+
+      <!-- Personal details -->
+      <p class="form-section">Personal details</p>
+
+      <div class="form-field--inline">
+        <div class="form-field">
+          <label for="firstName">First name <span class="required">*</span></label>
+          <input id="firstName" name="firstName" type="text" autocomplete="given-name"
+                 placeholder="Sipho" required />
+          <p class="form-error" id="err-firstName">Please enter your first name.</p>
+        </div>
+        <div class="form-field">
+          <label for="lastName">Last name <span class="required">*</span></label>
+          <input id="lastName" name="lastName" type="text" autocomplete="family-name"
+                 placeholder="Dlamini" required />
+          <p class="form-error" id="err-lastName">Please enter your last name.</p>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="email">Email address <span class="required">*</span></label>
+        <input id="email" name="email" type="email" autocomplete="email"
+               placeholder="sipho@example.co.za" required />
+        <p class="form-error" id="err-email">Please enter a valid email address.</p>
+      </div>
+
+      <div class="form-field">
+        <label for="phone">
+          Mobile number <span class="required">*</span>
+          <span class="hint"> — for SMS outage alerts</span>
+        </label>
+        <input id="phone" name="phone" type="tel" autocomplete="tel"
+               placeholder="0821234567" pattern="^0[0-9]{9}$" required />
+        <p class="form-error" id="err-phone">Enter a 10-digit SA number starting with 0.</p>
+      </div>
+
+      <div class="form-field">
+        <label for="password">Password <span class="required">*</span></label>
+        <input id="password" name="password" type="password" autocomplete="new-password"
+               placeholder="Min. 8 characters" required minlength="8" />
+        <div class="strength-bar" id="strengthBar" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <p class="strength-text" id="strengthText"></p>
+        <p class="form-error" id="err-password">Password must be at least 8 characters.</p>
+      </div>
+
+      <div class="form-field">
+        <label for="confirmPassword">Confirm password <span class="required">*</span></label>
+        <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password"
+               placeholder="Repeat your password" required />
+        <p class="form-error" id="err-confirmPassword">Passwords do not match.</p>
+      </div>
+
+      <!-- Location -->
+      <p class="form-section">Your community</p>
+
+      <div class="form-field">
+        <label for="province">Province <span class="required">*</span></label>
+        <div class="select-wrap">
+          <select id="province" name="province" required>
+            <option value="">— Select province —</option>
+            <option>Eastern Cape</option>
+            <option>Free State</option>
+            <option>Gauteng</option>
+            <option>KwaZulu-Natal</option>
+            <option>Limpopo</option>
+            <option>Mpumalanga</option>
+            <option>Northern Cape</option>
+            <option>North West</option>
+            <option>Western Cape</option>
+          </select>
+        </div>
+        <p class="form-error" id="err-province">Please select your province.</p>
+      </div>
+
+      <div class="form-field">
+        <label for="municipality">Municipality <span class="required">*</span></label>
+        <input id="municipality" name="municipality" type="text"
+               placeholder="e.g. eThekwini, City of Tshwane" required />
+        <p class="form-error" id="err-municipality">Please enter your municipality.</p>
+      </div>
+
+      <div class="form-field">
+        <label for="suburb">Suburb / Community <span class="required">*</span></label>
+        <input id="suburb" name="suburb" type="text"
+               placeholder="e.g. Umlazi, Soweto, Mitchell's Plain" required />
+        <p class="form-error" id="err-suburb">Please enter your suburb or community name.</p>
+      </div>
+
+      <div class="form-field--inline">
+        <div class="form-field">
+          <label for="streetAddress">Street address <span class="hint">(optional)</span></label>
+          <input id="streetAddress" name="streetAddress" type="text"
+                 autocomplete="street-address" placeholder="123 Main Street" />
+        </div>
+        <div class="form-field">
+          <label for="postalCode">Postal code <span class="hint">(optional)</span></label>
+          <input id="postalCode" name="postalCode" type="text"
+                 placeholder="0001" maxlength="4" pattern="[0-9]{4}" />
+        </div>
+      </div>
+
+      <!-- Preferences -->
+      <p class="form-section">Preferences</p>
+
+      <div class="form-field">
+        <label for="language">Preferred language</label>
+        <div class="select-wrap">
+          <select id="language" name="language">
+            <option value="en" selected>English</option>
+            <option value="zu">isiZulu</option>
+            <option value="xh">isiXhosa</option>
+            <option value="af">Afrikaans</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <fieldset style="border:none;padding:0">
+          <legend style="font-size:.875rem;font-weight:600;margin-bottom:.5rem">Alert preferences</legend>
+          <div class="check-group">
+            <label class="check-item">
+              <input type="checkbox" name="alertSms" value="sms" checked />
+              SMS <span class="hint">(recommended for low-connectivity areas)</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="alertEmail" value="email" checked />
+              Email
+            </label>
+            <label class="check-item">
+              <input type="checkbox" name="alertPush" value="push" />
+              Push notifications (mobile app)
+            </label>
+          </div>
+        </fieldset>
+      </div>
+
+      <!-- Terms -->
+      <label class="check-item mt-4" style="align-items:flex-start;gap:.6rem;font-size:.85rem;color:var(--muted)">
+        <input type="checkbox" id="terms" name="terms" required style="margin-top:2px" />
+        <span>
+          I agree to the <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a>.
+          My personal information will be handled in accordance with <strong>POPIA</strong>.
+        </span>
+      </label>
+      <p class="form-error" id="err-terms">You must accept the terms to register.</p>
+
+      <button type="submit" class="btn btn--primary btn--lg btn--full mt-6" id="submitBtn">
+        Create account
+      </button>
+
+      <p class="text-center text-sm mt-4 text-muted">
+        Already have an account? <a href="login.html">Sign in</a>
+      </p>
+    </form>
+  </div>
+</main>
+
+<footer class="ww-footer">
+  &copy; 2026 WaterWatch SA &nbsp;·&nbsp; Derivco Graduate Programme
+</footer>
+
+<script src="shared/api.js"></script>
+<script>
+  const form      = document.getElementById('registrationForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const alertEl   = document.getElementById('reg-alert');
+
+  /* Password strength */
+  const pwInput      = document.getElementById('password');
+  const strengthBar  = document.getElementById('strengthBar');
+  const strengthText = document.getElementById('strengthText');
+  const LABELS       = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+
+  function calcStrength(pw) {
+    let s = 0;
+    if (pw.length >= 8)  s++;
+    if (pw.length >= 12) s++;
+    if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) s++;
+    if (/[0-9]/.test(pw)) s++;
+    if (/[^A-Za-z0-9]/.test(pw)) s++;
+    return Math.min(4, s);
+  }
+
+  pwInput.addEventListener('input', () => {
+    const score = calcStrength(pwInput.value);
+    strengthBar.className = 'strength-bar' + (pwInput.value ? ` s${score}` : '');
+    strengthText.textContent = pwInput.value ? LABELS[score] : '';
+  });
+
+  function setError(id, errId, invalid) {
+    const el  = document.getElementById(id);
+    const err = document.getElementById(errId);
+    if (!el || !err) return;
+    el.setAttribute('aria-invalid', String(invalid));
+    err.classList.toggle('visible', invalid);
+  }
+
+  function validate() {
+    let ok = true;
+    const checks = [
+      { id: 'firstName',       err: 'err-firstName',       test: v => v.trim().length > 0 },
+      { id: 'lastName',        err: 'err-lastName',        test: v => v.trim().length > 0 },
+      { id: 'email',           err: 'err-email',           test: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+      { id: 'phone',           err: 'err-phone',           test: v => /^0[0-9]{9}$/.test(v.replace(/\s/g,'')) },
+      { id: 'password',        err: 'err-password',        test: v => v.length >= 8 },
+      { id: 'confirmPassword', err: 'err-confirmPassword', test: v => v === pwInput.value },
+      { id: 'province',        err: 'err-province',        test: v => v !== '' },
+      { id: 'municipality',    err: 'err-municipality',    test: v => v.trim().length > 0 },
+      { id: 'suburb',          err: 'err-suburb',          test: v => v.trim().length > 0 },
+    ];
+
+    checks.forEach(({ id, err, test }) => {
+      const pass = test(document.getElementById(id).value);
+      setError(id, err, !pass);
+      if (!pass) ok = false;
+    });
+
+    const termsOk = document.getElementById('terms').checked;
+    setError('terms', 'err-terms', !termsOk);
+    if (!termsOk) ok = false;
+
+    return ok;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    api.ui.clearAlert(alertEl);
+    if (!validate()) {
+      api.ui.setAlert(alertEl, 'Please fix the errors above before continuing.', 'error');
+      alertEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creating account…';
+
+    const fd = new FormData(form);
+    const payload = {
+      firstName:     fd.get('firstName'),
+      lastName:      fd.get('lastName'),
+      email:         fd.get('email'),
+      phone:         fd.get('phone'),
+      password:      fd.get('password'),
+      province:      fd.get('province'),
+      municipality:  fd.get('municipality'),
+      suburb:        fd.get('suburb'),
+      streetAddress: fd.get('streetAddress') || null,
+      postalCode:    fd.get('postalCode')    || null,
+      language:      fd.get('language'),
+      alertSms:      form.alertSms.checked,
+      alertEmail:    form.alertEmail.checked,
+      alertPush:     form.alertPush.checked,
+    };
+
+    try {
+      await api.auth.register(payload);
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      api.ui.setAlert(alertEl,
+        err.status === 409 ? 'An account with this email already exists.' : (err.message || 'Registration failed.'),
+        'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create account';
+    }
+  });
+
+  form.addEventListener('blur', (e) => {
+    if (e.target.name) validate();
+  }, true);
+</script>
+</body>
+</html>

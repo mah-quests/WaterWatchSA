@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Water Quality — WaterWatch SA</title>
+  <link rel="stylesheet" href="shared/style.css" />
+</head>
+<body>
+
+<nav class="ww-nav">
+  <a class="ww-nav__brand" href="dashboard.html">
+    <span class="ww-nav__brand-icon">💧</span>
+    WaterWatch SA
+  </a>
+  <button class="ww-nav__toggle" id="nav-toggle">☰</button>
+  <ul class="ww-nav__links" id="nav-links">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="map.html">Live Map</a></li>
+    <li><a href="report-outage.html">Report Outage</a></li>
+    <li><a href="water-quality.html">Water Quality</a></li>
+    <li><a href="alerts.html">Alerts</a></li>
+    <li><a href="municipal.html">Municipal</a></li>
+  </ul>
+  <div class="ww-nav__end">
+    <span class="ww-nav__user hidden" id="nav-user"></span>
+    <a class="btn btn--sm btn--outline" href="login.html" id="nav-login" style="color:#fff;border-color:rgba(255,255,255,.5)">Sign in</a>
+    <a class="btn btn--sm btn--ghost" href="#" id="nav-logout" style="color:#fff;border-color:rgba(255,255,255,.3)">Sign out</a>
+  </div>
+</nav>
+
+<main class="ww-page">
+  <div class="ww-page__header flex justify-between items-center">
+    <div>
+      <h1 class="ww-page__title">Water Quality</h1>
+      <p class="ww-page__subtitle">Current water quality readings per area</p>
+    </div>
+    <button class="btn btn--primary" id="btn-report-quality">+ Submit Reading</button>
+  </div>
+
+  <div id="page-alert" class="alert mb-4"></div>
+
+  <!-- Status summary pills -->
+  <div class="flex gap-3 flex-wrap mb-6" id="quality-summary">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Filter -->
+  <div class="flex gap-3 flex-wrap mb-4 items-center">
+    <div class="select-wrap" style="min-width:160px">
+      <select id="filter-province" style="padding:.35rem .8rem;font-size:.85rem">
+        <option value="">All provinces</option>
+        <option>Eastern Cape</option><option>Free State</option><option>Gauteng</option>
+        <option>KwaZulu-Natal</option><option>Limpopo</option><option>Mpumalanga</option>
+        <option>Northern Cape</option><option>North West</option><option>Western Cape</option>
+      </select>
+    </div>
+    <div class="select-wrap" style="min-width:140px">
+      <select id="filter-status" style="padding:.35rem .8rem;font-size:.85rem">
+        <option value="">All statuses</option>
+        <option value="normal">Normal</option>
+        <option value="caution">Caution</option>
+        <option value="unsafe">Unsafe</option>
+        <option value="no_supply">No Supply</option>
+      </select>
+    </div>
+    <button class="btn btn--sm btn--secondary" id="btn-filter">Apply</button>
+  </div>
+
+  <div class="card" id="quality-table-card">
+    <div class="spinner" id="quality-spinner"></div>
+    <div class="table-wrap hidden" id="quality-table-wrap">
+      <table class="ww-table">
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Province</th>
+            <th>Status</th>
+            <th>pH</th>
+            <th>Turbidity</th>
+            <th>Chlorine</th>
+            <th>Notes</th>
+            <th>Reported</th>
+          </tr>
+        </thead>
+        <tbody id="quality-tbody"></tbody>
+      </table>
+    </div>
+    <div class="empty-state hidden" id="quality-empty">
+      <div class="empty-state__icon">🧪</div>
+      <div class="empty-state__title">No readings yet</div>
+      <div class="empty-state__text">Be the first to submit a water quality reading for your area.</div>
+      <button class="btn btn--primary" id="btn-report-quality-2">Submit Reading</button>
+    </div>
+  </div>
+
+  <!-- Submit reading modal -->
+  <div id="quality-modal" class="hidden" style="
+    position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;
+    display:flex;align-items:center;justify-content:center;padding:var(--sp-4)">
+    <div class="card card--lg" style="width:100%;max-width:500px;max-height:90vh;overflow-y:auto;position:relative">
+      <button id="modal-close" aria-label="Close" style="
+        position:absolute;top:var(--sp-4);right:var(--sp-4);background:none;border:none;
+        font-size:1.4rem;cursor:pointer;color:var(--muted)">✕</button>
+
+      <h2 class="card__title">Submit Water Quality Reading</h2>
+      <div id="modal-alert" class="alert mb-4"></div>
+
+      <form id="qualityForm" novalidate>
+        <div class="form-field">
+          <label for="q-province">Province <span class="required">*</span></label>
+          <div class="select-wrap">
+            <select id="q-province" name="province" required>
+              <option value="">— Select —</option>
+              <option>Eastern Cape</option><option>Free State</option><option>Gauteng</option>
+              <option>KwaZulu-Natal</option><option>Limpopo</option><option>Mpumalanga</option>
+              <option>Northern Cape</option><option>North West</option><option>Western Cape</option>
+            </select>
+          </div>
+          <p class="form-error" id="err-q-province">Please select a province.</p>
+        </div>
+        <div class="form-field">
+          <label for="q-municipality">Municipality <span class="required">*</span></label>
+          <input id="q-municipality" name="municipality" type="text" placeholder="e.g. eThekwini" required />
+          <p class="form-error" id="err-q-municipality">Required.</p>
+        </div>
+        <div class="form-field">
+          <label for="q-suburb">Suburb / Area <span class="required">*</span></label>
+          <input id="q-suburb" name="suburb" type="text" placeholder="e.g. Umlazi" required />
+          <p class="form-error" id="err-q-suburb">Required.</p>
+        </div>
+        <div class="form-field">
+          <label for="q-status">Quality Status <span class="required">*</span></label>
+          <div class="select-wrap">
+            <select id="q-status" name="status" required>
+              <option value="">— Select —</option>
+              <option value="normal">Normal — safe to drink</option>
+              <option value="caution">Caution — boil before use</option>
+              <option value="unsafe">Unsafe — do not use</option>
+              <option value="no_supply">No Supply</option>
+            </select>
+          </div>
+          <p class="form-error" id="err-q-status">Required.</p>
+        </div>
+        <div class="form-field--inline">
+          <div class="form-field">
+            <label for="q-ph">pH <span class="hint">(optional)</span></label>
+            <input id="q-ph" name="ph" type="number" min="0" max="14" step="0.1" placeholder="7.0" />
+          </div>
+          <div class="form-field">
+            <label for="q-turbidity">Turbidity NTU <span class="hint">(optional)</span></label>
+            <input id="q-turbidity" name="turbidity" type="number" min="0" step="0.01" placeholder="0.5" />
+          </div>
+          <div class="form-field">
+            <label for="q-chlorine">Chlorine mg/L <span class="hint">(optional)</span></label>
+            <input id="q-chlorine" name="chlorine" type="number" min="0" step="0.01" placeholder="0.2" />
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="q-notes">Notes <span class="hint">(optional)</span></label>
+          <textarea id="q-notes" name="notes" rows="2" placeholder="Observations, odour, colour…"></textarea>
+        </div>
+        <button type="submit" class="btn btn--primary btn--full mt-4" id="quality-submit">Submit Reading</button>
+      </form>
+    </div>
+  </div>
+</main>
+
+<footer class="ww-footer">
+  &copy; 2026 WaterWatch SA &nbsp;·&nbsp; Derivco Graduate Programme
+</footer>
+
+<script src="shared/api.js"></script>
+<script>
+  api.ui.initNav();
+
+  const modal       = document.getElementById('quality-modal');
+  const modalClose  = document.getElementById('modal-close');
+  const modalAlert  = document.getElementById('modal-alert');
+  const qualityForm = document.getElementById('qualityForm');
+  const pageAlert   = document.getElementById('page-alert');
+
+  function openModal() {
+    if (!api.auth.isAuthenticated()) {
+      api.ui.setAlert(pageAlert, 'Please sign in to submit a water quality reading.', 'warn');
+      return;
+    }
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+  }
+  function closeModal() {
+    modal.style.display = 'none';
+    modal.classList.add('hidden');
+  }
+
+  document.getElementById('btn-report-quality').addEventListener('click', openModal);
+  document.getElementById('btn-report-quality-2')?.addEventListener('click', openModal);
+  modalClose.addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+  async function loadQuality() {
+    const province = document.getElementById('filter-province').value;
+    const status   = document.getElementById('filter-status').value;
+    const filters  = {};
+    if (province) filters.province = province;
+    if (status)   filters.status   = status;
+
+    document.getElementById('quality-spinner').classList.remove('hidden');
+    document.getElementById('quality-table-wrap').classList.add('hidden');
+    document.getElementById('quality-empty').classList.add('hidden');
+
+    try {
+      const data = await api.waterQuality.list(filters);
+      const records = data.records || [];
+
+      /* Summary pills */
+      const counts = { normal: 0, caution: 0, unsafe: 0, no_supply: 0 };
+      records.forEach(r => { if (counts[r.status] !== undefined) counts[r.status]++; });
+      document.getElementById('quality-summary').innerHTML = Object.entries(counts)
+        .map(([s, n]) => `<span class="badge badge--${s}">${api.ui.qualityLabel(s)}: ${n}</span>`)
+        .join('');
+
+      document.getElementById('quality-spinner').classList.add('hidden');
+
+      if (!records.length) {
+        document.getElementById('quality-empty').classList.remove('hidden');
+        return;
+      }
+
+      document.getElementById('quality-table-wrap').classList.remove('hidden');
+      document.getElementById('quality-tbody').innerHTML = records.map(r => `
+        <tr>
+          <td class="font-bold">${escHtml(r.suburb || r.municipality)}</td>
+          <td class="text-muted text-sm">${escHtml(r.province)}</td>
+          <td><span class="badge badge--${r.status}">${api.ui.qualityLabel(r.status)}</span></td>
+          <td class="text-sm">${r.ph != null ? r.ph : '—'}</td>
+          <td class="text-sm">${r.turbidity != null ? r.turbidity : '—'}</td>
+          <td class="text-sm">${r.chlorine != null ? r.chlorine : '—'}</td>
+          <td class="text-sm text-muted">${escHtml(r.notes || '—')}</td>
+          <td class="text-xs text-muted">${api.ui.formatDate(r.created_at)}</td>
+        </tr>`).join('');
+    } catch {
+      document.getElementById('quality-spinner').classList.add('hidden');
+      api.ui.setAlert(pageAlert, 'Could not load water quality data — is the backend running?', 'warn');
+    }
+  }
+
+  document.getElementById('btn-filter').addEventListener('click', loadQuality);
+
+  function setError(id, errId, invalid) {
+    const el  = document.getElementById(id);
+    const err = document.getElementById(errId);
+    if (!el || !err) return;
+    el.setAttribute('aria-invalid', String(invalid));
+    err.classList.toggle('visible', invalid);
+  }
+
+  qualityForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    api.ui.clearAlert(modalAlert);
+
+    let ok = true;
+    [
+      { id: 'q-province',     err: 'err-q-province',     test: v => v !== '' },
+      { id: 'q-municipality', err: 'err-q-municipality', test: v => v.trim().length > 0 },
+      { id: 'q-suburb',       err: 'err-q-suburb',       test: v => v.trim().length > 0 },
+      { id: 'q-status',       err: 'err-q-status',       test: v => v !== '' },
+    ].forEach(({ id, err, test }) => {
+      const pass = test(document.getElementById(id).value);
+      setError(id, err, !pass);
+      if (!pass) ok = false;
+    });
+    if (!ok) return;
+
+    const submitBtn = document.getElementById('quality-submit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting…';
+
+    const fd = new FormData(qualityForm);
+    try {
+      await api.waterQuality.create({
+        province:     fd.get('province'),
+        municipality: fd.get('municipality'),
+        suburb:       fd.get('suburb'),
+        status:       fd.get('status'),
+        ph:           fd.get('ph')        || null,
+        turbidity:    fd.get('turbidity') || null,
+        chlorine:     fd.get('chlorine')  || null,
+        notes:        fd.get('notes')     || null,
+      });
+      closeModal();
+      qualityForm.reset();
+      api.ui.toast('Water quality reading submitted!', 'success');
+      loadQuality();
+    } catch (err) {
+      api.ui.setAlert(modalAlert, err.message || 'Submission failed.', 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Reading';
+    }
+  });
+
+  function escHtml(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  loadQuality();
+</script>
+</body>
+</html>

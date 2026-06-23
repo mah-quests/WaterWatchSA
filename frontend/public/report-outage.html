@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Report Outage — WaterWatch SA</title>
+  <link rel="stylesheet" href="shared/style.css" />
+</head>
+<body>
+
+<nav class="ww-nav">
+  <a class="ww-nav__brand" href="dashboard.html">
+    <span class="ww-nav__brand-icon">💧</span>
+    WaterWatch SA
+  </a>
+  <button class="ww-nav__toggle" id="nav-toggle">☰</button>
+  <ul class="ww-nav__links" id="nav-links">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="map.html">Live Map</a></li>
+    <li><a href="report-outage.html">Report Outage</a></li>
+    <li><a href="water-quality.html">Water Quality</a></li>
+    <li><a href="alerts.html">Alerts</a></li>
+    <li><a href="municipal.html">Municipal</a></li>
+  </ul>
+  <div class="ww-nav__end">
+    <span class="ww-nav__user hidden" id="nav-user"></span>
+    <a class="btn btn--sm btn--outline" href="login.html" id="nav-login" style="color:#fff;border-color:rgba(255,255,255,.5)">Sign in</a>
+    <a class="btn btn--sm btn--ghost" href="#" id="nav-logout" style="color:#fff;border-color:rgba(255,255,255,.3)">Sign out</a>
+  </div>
+</nav>
+
+<main class="ww-page ww-page--narrow">
+  <div class="ww-page__header">
+    <h1 class="ww-page__title">Report a Water Outage</h1>
+    <p class="ww-page__subtitle">Help your community by reporting water supply problems in your area.</p>
+  </div>
+
+  <div class="card card--lg">
+    <div id="report-alert" class="alert mb-4"></div>
+
+    <form id="reportForm" novalidate>
+
+      <!-- What happened -->
+      <p class="form-section">What happened</p>
+
+      <div class="form-field">
+        <label for="title">Summary <span class="required">*</span></label>
+        <input id="title" name="title" type="text" maxlength="150"
+               placeholder="e.g. No water supply in Umlazi F-Section" required />
+        <p class="form-error" id="err-title">Please provide a short summary.</p>
+      </div>
+
+      <div class="form-field">
+        <label for="description">Description <span class="hint">(optional)</span></label>
+        <textarea id="description" name="description" rows="3"
+                  placeholder="Any additional details — when it started, affected streets, etc."></textarea>
+      </div>
+
+      <div class="form-field--inline">
+        <div class="form-field">
+          <label for="severity">Severity <span class="required">*</span></label>
+          <div class="select-wrap">
+            <select id="severity" name="severity" required>
+              <option value="">— Select —</option>
+              <option value="low">Low — minor inconvenience</option>
+              <option value="medium" selected>Medium — no running water</option>
+              <option value="high">High — affects many households</option>
+              <option value="critical">Critical — no water at all / emergency</option>
+            </select>
+          </div>
+          <p class="form-error" id="err-severity">Please select a severity level.</p>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <p class="form-section">Location</p>
+
+      <div class="form-field">
+        <label for="province">Province <span class="required">*</span></label>
+        <div class="select-wrap">
+          <select id="province" name="province" required>
+            <option value="">— Select province —</option>
+            <option>Eastern Cape</option>
+            <option>Free State</option>
+            <option>Gauteng</option>
+            <option>KwaZulu-Natal</option>
+            <option>Limpopo</option>
+            <option>Mpumalanga</option>
+            <option>Northern Cape</option>
+            <option>North West</option>
+            <option>Western Cape</option>
+          </select>
+        </div>
+        <p class="form-error" id="err-province">Please select your province.</p>
+      </div>
+
+      <div class="form-field">
+        <label for="municipality">Municipality <span class="required">*</span></label>
+        <input id="municipality" name="municipality" type="text"
+               placeholder="e.g. eThekwini, City of Cape Town" required />
+        <p class="form-error" id="err-municipality">Please enter your municipality.</p>
+      </div>
+
+      <div class="form-field">
+        <label for="suburb">Suburb / Area <span class="required">*</span></label>
+        <input id="suburb" name="suburb" type="text"
+               placeholder="e.g. Umlazi, Soweto, Khayelitsha" required />
+        <p class="form-error" id="err-suburb">Please enter your suburb or area.</p>
+      </div>
+
+      <div class="form-field">
+        <label for="address">Specific address <span class="hint">(optional — helps responders)</span></label>
+        <input id="address" name="address" type="text"
+               placeholder="e.g. Corner of Main Rd and 2nd Ave" />
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--lg btn--full mt-6" id="submitBtn">
+        Submit Report
+      </button>
+    </form>
+
+    <!-- Success state (hidden until submitted) -->
+    <div id="success-state" class="hidden" style="text-align:center;padding:2rem 0">
+      <div style="font-size:3rem">✅</div>
+      <h2 style="margin-top:1rem;color:var(--blue-dark)">Outage reported!</h2>
+      <p class="text-muted mt-2">Thank you for helping your community. Municipal teams will be notified.</p>
+      <div class="flex gap-3 justify-between mt-6" style="flex-wrap:wrap">
+        <a class="btn btn--secondary" href="map.html">View on map</a>
+        <a class="btn btn--primary"   href="report-outage.html">Report another</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="ww-footer">
+  &copy; 2026 WaterWatch SA &nbsp;·&nbsp; Derivco Graduate Programme
+</footer>
+
+<script src="shared/api.js"></script>
+<script>
+  api.ui.initNav();
+
+  const form       = document.getElementById('reportForm');
+  const submitBtn  = document.getElementById('submitBtn');
+  const alertEl    = document.getElementById('report-alert');
+  const successDiv = document.getElementById('success-state');
+
+  function setError(id, errId, invalid) {
+    const el  = document.getElementById(id);
+    const err = document.getElementById(errId);
+    if (!el || !err) return;
+    el.setAttribute('aria-invalid', String(invalid));
+    err.classList.toggle('visible', invalid);
+  }
+
+  function validate() {
+    let ok = true;
+    const checks = [
+      { id: 'title',        err: 'err-title',        test: v => v.trim().length >= 5 },
+      { id: 'severity',     err: 'err-severity',     test: v => v !== '' },
+      { id: 'province',     err: 'err-province',     test: v => v !== '' },
+      { id: 'municipality', err: 'err-municipality', test: v => v.trim().length > 0 },
+      { id: 'suburb',       err: 'err-suburb',       test: v => v.trim().length > 0 },
+    ];
+    checks.forEach(({ id, err, test }) => {
+      const pass = test(document.getElementById(id).value);
+      setError(id, err, !pass);
+      if (!pass) ok = false;
+    });
+    return ok;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    api.ui.clearAlert(alertEl);
+    if (!validate()) return;
+
+    if (!api.auth.isAuthenticated()) {
+      api.ui.setAlert(alertEl,
+        'You need to be signed in to report an outage. <a href="login.html">Sign in here</a>.', 'warn');
+      alertEl.innerHTML = alertEl.textContent;
+      alertEl.className = 'alert alert--warn visible';
+      alertEl.innerHTML = `You need to be signed in to report an outage. <a href="login.html">Sign in here</a>.`;
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting…';
+
+    const fd = new FormData(form);
+    try {
+      await api.outages.create({
+        title:        fd.get('title'),
+        description:  fd.get('description') || null,
+        severity:     fd.get('severity'),
+        province:     fd.get('province'),
+        municipality: fd.get('municipality'),
+        suburb:       fd.get('suburb'),
+        address:      fd.get('address') || null,
+      });
+      form.classList.add('hidden');
+      successDiv.classList.remove('hidden');
+    } catch (err) {
+      api.ui.setAlert(alertEl, err.message || 'Failed to submit report. Please try again.', 'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Report';
+    }
+  });
+</script>
+</body>
+</html>

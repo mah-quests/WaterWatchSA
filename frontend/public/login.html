@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — WaterWatch SA</title>
+  <link rel="stylesheet" href="shared/style.css" />
+</head>
+<body>
+
+<nav class="ww-nav">
+  <a class="ww-nav__brand" href="dashboard.html">
+    <span class="ww-nav__brand-icon">💧</span>
+    WaterWatch SA
+  </a>
+</nav>
+
+<main class="ww-page ww-page--narrow">
+  <div style="text-align:center;margin-bottom:2rem;margin-top:1rem">
+    <div style="font-size:2.5rem">💧</div>
+    <h1 style="font-size:1.5rem;font-weight:800;color:var(--blue-dark);margin-top:.5rem">Sign in to WaterWatch</h1>
+    <p class="text-muted text-sm" style="margin-top:.25rem">Track outages and water quality in your area</p>
+  </div>
+
+  <div class="card">
+    <div id="login-alert" class="alert mb-4"></div>
+
+    <form id="loginForm" novalidate>
+      <div class="form-field">
+        <label for="email">Email address <span class="required">*</span></label>
+        <input id="email" name="email" type="email" autocomplete="email"
+               placeholder="sipho@example.co.za" required />
+        <p class="form-error" id="err-email">Please enter a valid email address.</p>
+      </div>
+
+      <div class="form-field">
+        <label for="password">Password <span class="required">*</span></label>
+        <input id="password" name="password" type="password" autocomplete="current-password"
+               placeholder="Your password" required />
+        <p class="form-error" id="err-password">Please enter your password.</p>
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--lg btn--full mt-4" id="submitBtn">
+        Sign in
+      </button>
+    </form>
+
+    <p class="text-center text-sm mt-4 text-muted">
+      Don't have an account? <a href="register.html">Register here</a>
+    </p>
+  </div>
+</main>
+
+<footer class="ww-footer">
+  &copy; 2026 WaterWatch SA &nbsp;·&nbsp; Derivco Graduate Programme
+</footer>
+
+<script src="shared/api.js"></script>
+<script>
+  /* Redirect if already logged in */
+  if (api.auth.isAuthenticated()) {
+    window.location.href = 'dashboard.html';
+  }
+
+  const form      = document.getElementById('loginForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const alertEl   = document.getElementById('login-alert');
+
+  function setError(fieldId, errId, invalid) {
+    const el  = document.getElementById(fieldId);
+    const err = document.getElementById(errId);
+    if (!el || !err) return;
+    el.setAttribute('aria-invalid', String(invalid));
+    err.classList.toggle('visible', invalid);
+  }
+
+  function validate() {
+    let ok = true;
+    const email    = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    setError('email', 'err-email', !emailValid);
+    if (!emailValid) ok = false;
+
+    setError('password', 'err-password', !password);
+    if (!password) ok = false;
+
+    return ok;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    api.ui.clearAlert(alertEl);
+    if (!validate()) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Signing in…';
+
+    try {
+      await api.auth.login(
+        document.getElementById('email').value,
+        document.getElementById('password').value
+      );
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      api.ui.setAlert(alertEl,
+        err.status === 401 ? 'Incorrect email or password.' : (err.message || 'Something went wrong.'),
+        'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Sign in';
+    }
+  });
+</script>
+</body>
+</html>

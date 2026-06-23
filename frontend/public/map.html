@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Map — WaterWatch SA</title>
+  <link rel="stylesheet" href="shared/style.css" />
+  <!-- Leaflet.js (open-source map — no API key needed) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    .map-container { height: calc(100vh - var(--nav-h) - 120px); min-height: 400px; }
+    .map-sidebar {
+      position: absolute; top: var(--sp-4); right: var(--sp-4);
+      width: 300px; max-height: calc(100vh - var(--nav-h) - 140px);
+      overflow-y: auto; z-index: 500;
+      display: flex; flex-direction: column; gap: var(--sp-3);
+    }
+    @media (max-width: 640px) {
+      .map-sidebar { position: static; width: 100%; max-height: 240px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="ww-nav">
+  <a class="ww-nav__brand" href="dashboard.html">
+    <span class="ww-nav__brand-icon">💧</span>
+    WaterWatch SA
+  </a>
+  <button class="ww-nav__toggle" id="nav-toggle">☰</button>
+  <ul class="ww-nav__links" id="nav-links">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="map.html">Live Map</a></li>
+    <li><a href="report-outage.html">Report Outage</a></li>
+    <li><a href="water-quality.html">Water Quality</a></li>
+    <li><a href="alerts.html">Alerts</a></li>
+    <li><a href="municipal.html">Municipal</a></li>
+  </ul>
+  <div class="ww-nav__end">
+    <span class="ww-nav__user hidden" id="nav-user"></span>
+    <a class="btn btn--sm btn--outline" href="login.html" id="nav-login" style="color:#fff;border-color:rgba(255,255,255,.5)">Sign in</a>
+    <a class="btn btn--sm btn--ghost" href="#" id="nav-logout" style="color:#fff;border-color:rgba(255,255,255,.3)">Sign out</a>
+  </div>
+</nav>
+
+<!-- Filter bar -->
+<div style="background:var(--surface);border-bottom:1px solid var(--border);padding:var(--sp-3) var(--sp-6);display:flex;gap:var(--sp-3);flex-wrap:wrap;align-items:center">
+  <span class="text-sm font-bold text-muted">Filter:</span>
+  <div class="select-wrap" style="min-width:140px">
+    <select id="filter-status" style="padding:.35rem .8rem;font-size:.85rem">
+      <option value="">All statuses</option>
+      <option value="reported">Reported</option>
+      <option value="investigating">Investigating</option>
+      <option value="in_progress">In Progress</option>
+      <option value="resolved">Resolved</option>
+    </select>
+  </div>
+  <div class="select-wrap" style="min-width:130px">
+    <select id="filter-severity" style="padding:.35rem .8rem;font-size:.85rem">
+      <option value="">All severities</option>
+      <option value="critical">Critical</option>
+      <option value="high">High</option>
+      <option value="medium">Medium</option>
+      <option value="low">Low</option>
+    </select>
+  </div>
+  <button class="btn btn--sm btn--secondary" id="btn-apply-filter">Apply</button>
+  <a class="btn btn--sm btn--primary" href="report-outage.html" style="margin-left:auto">+ Report Outage</a>
+</div>
+
+<!-- Map + sidebar layout -->
+<div style="position:relative">
+  <div id="map" class="map-container"></div>
+
+  <div class="map-sidebar" id="map-sidebar">
+    <div class="card card--sm" id="sidebar-list" style="flex:1;overflow-y:auto">
+      <p class="text-muted text-sm">Loading outages…</p>
+    </div>
+  </div>
+</div>
+
+<footer class="ww-footer">
+  &copy; 2026 WaterWatch SA &nbsp;·&nbsp; Derivco Graduate Programme
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="shared/api.js"></script>
+<script>
+  api.ui.initNav();
+
+  /* Leaflet map centred on South Africa */
+  const map = L.map('map').setView([-28.5, 25.5], 5);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  }).addTo(map);
+
+  const COLORS = { critical: '#c0392b', high: '#c0600a', medium: '#d48a0a', low: '#2e8b57' };
+
+  function makeIcon(severity) {
+    const color = COLORS[severity] || '#1a6fb5';
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width:14px;height:14px;border-radius:50%;
+        background:${color};border:2px solid #fff;
+        box-shadow:0 1px 4px rgba(0,0,0,.4)
+      "></div>`,
+      iconSize: [14,14],
+      iconAnchor: [7,7],
+    });
+  }
+
+  let markers = [];
+
+  function clearMarkers() {
+    markers.forEach(m => m.remove());
+    markers = [];
+  }
+
+  async function loadOutages() {
+    const status   = document.getElementById('filter-status').value;
+    const severity = document.getElementById('filter-severity').value;
+    const filters  = {};
+    if (status)   filters.status   = status;
+    if (severity) filters.severity = severity;
+
+    const sidebarList = document.getElementById('sidebar-list');
+    sidebarList.innerHTML = '<p class="text-muted text-sm">Loading…</p>';
+    clearMarkers();
+
+    try {
+      const data = await api.outages.list(filters);
+      const items = data.outages || [];
+
+      /* Default demo coords per province if lat/lng missing */
+      const DEFAULT_COORDS = {
+        'Gauteng': [-26.2, 28.0], 'KwaZulu-Natal': [-29.6, 31.0],
+        'Western Cape': [-33.9, 18.4], 'Eastern Cape': [-33.0, 27.5],
+        'Limpopo': [-23.9, 29.5], 'Mpumalanga': [-25.5, 30.5],
+        'Free State': [-28.5, 26.2], 'Northern Cape': [-29.0, 23.0],
+        'North West': [-25.7, 25.5],
+      };
+
+      items.forEach(o => {
+        let lat = parseFloat(o.lat);
+        let lng = parseFloat(o.lng);
+
+        if (!lat || !lng) {
+          const def = DEFAULT_COORDS[o.province];
+          if (def) {
+            lat = def[0] + (Math.random() - .5) * .5;
+            lng = def[1] + (Math.random() - .5) * .5;
+          } else { return; }
+        }
+
+        const m = L.marker([lat, lng], { icon: makeIcon(o.severity) })
+          .addTo(map)
+          .bindPopup(`
+            <strong>${o.title}</strong><br/>
+            ${o.suburb || o.municipality || ''}, ${o.province}<br/>
+            <span style="font-size:.8rem;color:#666">${api.ui.formatDate(o.created_at)}</span><br/>
+            <span class="badge badge--${o.status}" style="margin-top:4px">${api.ui.statusLabel(o.status)}</span>
+          `);
+        markers.push(m);
+      });
+
+      /* Sidebar list */
+      if (!items.length) {
+        sidebarList.innerHTML = '<p class="text-muted text-sm">No outages match the filter.</p>';
+        return;
+      }
+
+      sidebarList.innerHTML = `
+        <p class="text-xs text-muted mb-2 font-bold">${items.length} OUTAGE${items.length !== 1 ? 'S' : ''}</p>
+        ${items.slice(0, 20).map(o => `
+          <div style="border-bottom:1px solid var(--border);padding:.5rem 0;cursor:pointer"
+               onclick="map.setView([${parseFloat(o.lat)||0}, ${parseFloat(o.lng)||0}], 12)">
+            <div class="text-sm font-bold" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${o.title}</div>
+            <div class="text-xs text-muted">${o.suburb || o.municipality || o.province}</div>
+            <div style="margin-top:3px"><span class="badge badge--${o.severity}">${api.ui.severityLabel(o.severity)}</span></div>
+          </div>`).join('')}
+      `;
+    } catch {
+      sidebarList.innerHTML = '<p class="text-muted text-sm">Could not load outages — is the backend running?</p>';
+    }
+  }
+
+  document.getElementById('btn-apply-filter').addEventListener('click', loadOutages);
+
+  /* Pan to outage from URL param ?id=... */
+  const params = new URLSearchParams(window.location.search);
+  const targetId = params.get('id');
+
+  loadOutages().then(() => {
+    if (targetId) {
+      api.outages.get(targetId).then(data => {
+        const o = data.outage;
+        if (o && o.lat && o.lng) map.setView([o.lat, o.lng], 14);
+      }).catch(() => {});
+    }
+  });
+</script>
+</body>
+</html>

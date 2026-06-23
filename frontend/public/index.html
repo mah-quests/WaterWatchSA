@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WaterWatch SA — Water visibility for every South African</title>
+  <link rel="stylesheet" href="shared/style.css" />
+  <style>
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: var(--blue-light);
+      color: var(--blue-dark);
+      border-radius: 99px;
+      padding: .35rem .9rem;
+      font-size: .8rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+    .hero-title { font-size: 2.2rem; font-weight: 800; color: var(--blue-dark); margin-bottom: .6rem; }
+    .hero-sub   { font-size: 1.05rem; color: var(--muted); max-width: 500px; margin: 0 auto 2.5rem; line-height: 1.6; }
+    .cta-group  { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 3.5rem; }
+    .features   { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; width: 100%; max-width: 900px; text-align: left; }
+    .feature-card { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 1.4rem; }
+    .feature-icon { font-size: 1.75rem; margin-bottom: .6rem; }
+    .feature-card h3 { font-size: .95rem; font-weight: 700; color: var(--blue-dark); margin-bottom: .3rem; }
+    .feature-card p  { font-size: .83rem; color: var(--muted); line-height: 1.5; }
+    @media (max-width: 480px) {
+      .hero-title { font-size: 1.5rem; }
+      .cta-group  { flex-direction: column; align-items: center; }
+      .cta-group .btn { width: 100%; max-width: 320px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<header style="background:var(--blue-dark);color:#fff;padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem">
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+    <circle cx="16" cy="16" r="16" fill="rgba(255,255,255,.15)"/>
+    <path d="M16 6 C16 6 8 14 8 19 a8 8 0 0 0 16 0 C24 14 16 6 16 6Z" fill="white"/>
+  </svg>
+  <div>
+    <div style="font-size:1.15rem;font-weight:700">WaterWatch SA</div>
+    <div style="font-size:.78rem;opacity:.8">Water visibility for every South African</div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:.75rem">
+    <a href="login.html"    class="btn btn--sm btn--outline" style="color:#fff;border-color:rgba(255,255,255,.5)">Sign in</a>
+    <a href="register.html" class="btn btn--sm btn--primary"  style="background:rgba(255,255,255,.2)">Register</a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-badge">
+    <span class="status-dot"></span>
+    Live platform — Derivco Graduate Programme 2026
+  </div>
+
+  <svg width="80" height="80" viewBox="0 0 80 80" fill="none" aria-hidden="true" style="margin-bottom:1.5rem">
+    <circle cx="40" cy="40" r="40" fill="var(--blue-light)"/>
+    <path d="M40 16 C40 16 24 32 24 44 a16 16 0 0 0 32 0 C56 32 40 16 40 16Z" fill="var(--blue)"/>
+    <path d="M40 30 C40 30 32 39 32 45 a8 8 0 0 0 16 0 C48 39 40 30 40 30Z" fill="white" opacity=".4"/>
+  </svg>
+
+  <h1 class="hero-title">Know your water. Know your rights.</h1>
+  <p class="hero-sub">
+    Report outages, track water quality, and receive real-time alerts —
+    all in one place, for every South African community.
+  </p>
+
+  <div class="cta-group">
+    <a href="register.html" class="btn btn--primary btn--lg">Create an account</a>
+    <a href="dashboard.html" class="btn btn--outline btn--lg">View Dashboard</a>
+  </div>
+
+  <div class="features" id="features">
+    <div class="feature-card">
+      <div class="feature-icon">📍</div>
+      <h3>Report outages</h3>
+      <p>Log a water outage in your area with location, description, and severity level.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🗺️</div>
+      <h3>Live outage map</h3>
+      <p>See all active outages on a real-time map with status and restoration ETAs.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔔</div>
+      <h3>Instant alerts</h3>
+      <p>Get notified via SMS, email, or push when outages are reported or resolved in your area.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💧</div>
+      <h3>Water quality</h3>
+      <p>View water quality readings for your suburb, submitted by your municipality or community.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="ww-footer">
+  &copy; 2026 WaterWatch SA &nbsp;·&nbsp; Derivco Graduate Programme
+</footer>
+
+<script src="shared/api.js"></script>
+<script>
+  /* If already logged in, redirect to dashboard */
+  if (api.auth.isAuthenticated()) {
+    window.location.href = 'dashboard.html';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Municipal Dashboard — WaterWatch SA</title>
+  <link rel="stylesheet" href="shared/style.css" />
+</head>
+<body>
+
+<nav class="ww-nav">
+  <a class="ww-nav__brand" href="dashboard.html">
+    <span class="ww-nav__brand-icon">💧</span>
+    WaterWatch SA
+  </a>
+  <button class="ww-nav__toggle" id="nav-toggle">☰</button>
+  <ul class="ww-nav__links" id="nav-links">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="map.html">Live Map</a></li>
+    <li><a href="report-outage.html">Report Outage</a></li>
+    <li><a href="water-quality.html">Water Quality</a></li>
+    <li><a href="alerts.html">Alerts</a></li>
+    <li><a href="municipal.html">Municipal</a></li>
+  </ul>
+  <div class="ww-nav__end">
+    <span class="ww-nav__user hidden" id="nav-user"></span>
+    <a class="btn btn--sm btn--outline" href="login.html" id="nav-login" style="color:#fff;border-color:rgba(255,255,255,.5)">Sign in</a>
+    <a class="btn btn--sm btn--ghost" href="#" id="nav-logout" style="color:#fff;border-color:rgba(255,255,255,.3)">Sign out</a>
+  </div>
+</nav>
+
+<main class="ww-page">
+  <div class="ww-page__header">
+    <h1 class="ww-page__title">Municipal Dashboard</h1>
+    <p class="ww-page__subtitle">Manage outage reports, post updates, and track resolution progress.</p>
+  </div>
+
+  <div id="page-alert" class="alert mb-4"></div>
+
+  <!-- Auth guard message -->
+  <div id="auth-guard" class="card hidden" style="text-align:center;padding:3rem">
+    <div style="font-size:2.5rem">🔒</div>
+    <h2 style="margin:.75rem 0 .5rem;color:var(--blue-dark)">Municipal access required</h2>
+    <p class="text-muted">This dashboard is for municipal staff. Please sign in with a municipal account.</p>
+    <a class="btn btn--primary mt-6" href="login.html">Sign in</a>
+  </div>
+
+  <!-- Dashboard content (shown when authenticated) -->
+  <div id="dashboard-content">
+    <div class="stats-grid mb-6" id="municipal-stats">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Outage table -->
+    <div class="card">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="card__title" style="margin:0">Active Outages</h2>
+        <div class="flex gap-2">
+          <div class="select-wrap">
+            <select id="filter-status" style="padding:.35rem .75rem;font-size:.85rem">
+              <option value="">All statuses</option>
+              <option value="reported">Reported</option>
+              <option value="investigating">Investigating</option>
+              <option value="in_progress">In Progress</option>
+            </select>
+          </div>
+          <button class="btn btn--sm btn--secondary" id="btn-filter">Filter</button>
+        </div>
+      </div>
+
+      <div class="table-wrap" id="outage-table-wrap">
+        <div class="spinner"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Update modal -->
+  <div id="update-modal" class="hidden" style="
+    position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;
+    display:flex;align-items:center;justify-content:center;padding:var(--sp-4)">
+    <div class="card card--lg" style="width:100%;max-width:480px;position:relative">
+      <button id="modal-close" style="position:absolute;top:var(--sp-4);right:var(--sp-4);background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--muted)">✕</button>
+      <h2 class="card__title" id="modal-title">Update Outage</h2>
+      <div id="modal-alert" class="alert mb-4"></div>
+      <form id="updateForm">
+        <input type="hidden" id="update-outage-id" />
+        <div class="form-field">
+          <label for="new-status">New Status</label>
+          <div class="select-wrap">
+            <select id="new-status" name="status">
+              <option value="reported">Reported</option>
+              <option value="investigating">Investigating</option>
+              <option value="in_progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="update-message">Update message <span class="required">*</span></label>
+          <textarea id="update-message" name="message" rows="3"
+                    placeholder="Describe the current situation, cause, or ETA…" required></textarea>
+          <p class="form-error" id="err-message">Please enter a message.</p>
+        </div>
+        <button type="submit" class="btn btn--primary btn--full mt-4" id="update-submit">Post Update</button>
+      </form>
+    </div>
+  </div>
+</main>
+
+<footer class="ww-footer">
+  &copy; 2026 WaterWatch SA &nbsp;·&nbsp; Derivco Graduate Programme
+</footer>
+
+<script src="shared/api.js"></script>
+<script>
+  api.ui.initNav();
+
+  const pageAlert    = document.getElementById('page-alert');
+  const authGuard    = document.getElementById('auth-guard');
+  const dashContent  = document.getElementById('dashboard-content');
+  const modal        = document.getElementById('update-modal');
+  const modalAlert   = document.getElementById('modal-alert');
+  const updateForm   = document.getElementById('updateForm');
+
+  /* Show auth guard if not logged in */
+  if (!api.auth.isAuthenticated()) {
+    authGuard.classList.remove('hidden');
+    dashContent.classList.add('hidden');
+  } else {
+    loadDashboard();
+  }
+
+  function openModal(outage) {
+    document.getElementById('update-outage-id').value = outage.id;
+    document.getElementById('modal-title').textContent = `Update: ${outage.title}`;
+    document.getElementById('new-status').value = outage.status;
+    document.getElementById('update-message').value = '';
+    api.ui.clearAlert(modalAlert);
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+  }
+  function closeModal() {
+    modal.style.display = 'none';
+    modal.classList.add('hidden');
+  }
+
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+  async function loadDashboard() {
+    const filters = {};
+    const status  = document.getElementById('filter-status')?.value;
+    if (status) filters.status = status;
+
+    try {
+      const data  = await api.outages.list({ ...filters, limit: 100 });
+      const items = data.outages || [];
+
+      const byStatus = (s) => items.filter(o => o.status === s).length;
+      document.getElementById('municipal-stats').innerHTML = `
+        <div class="stat-card stat-card--red">
+          <span class="stat-card__label">Reported</span>
+          <span class="stat-card__value">${byStatus('reported')}</span>
+        </div>
+        <div class="stat-card stat-card--yellow">
+          <span class="stat-card__label">Investigating</span>
+          <span class="stat-card__value">${byStatus('investigating')}</span>
+        </div>
+        <div class="stat-card stat-card--orange">
+          <span class="stat-card__label">In Progress</span>
+          <span class="stat-card__value">${byStatus('in_progress')}</span>
+        </div>
+        <div class="stat-card stat-card--green">
+          <span class="stat-card__label">Resolved</span>
+          <span class="stat-card__value">${byStatus('resolved')}</span>
+        </div>`;
+
+      if (!items.length) {
+        document.getElementById('outage-table-wrap').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state__icon">✅</div>
+            <div class="empty-state__title">No outages to manage</div>
+          </div>`;
+        return;
+      }
+
+      document.getElementById('outage-table-wrap').innerHTML = `
+        <table class="ww-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Area</th>
+              <th>Severity</th>
+              <th>Status</th>
+              <th>Reported</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.map(o => `
+              <tr>
+                <td class="font-bold text-sm">${escHtml(o.title)}</td>
+                <td class="text-sm text-muted">${escHtml(o.suburb || o.municipality || o.province)}</td>
+                <td><span class="badge badge--${o.severity}">${api.ui.severityLabel(o.severity)}</span></td>
+                <td><span class="badge badge--${o.status}">${api.ui.statusLabel(o.status)}</span></td>
+                <td class="text-xs text-muted">${api.ui.formatDate(o.created_at)}</td>
+                <td>
+                  <button class="btn btn--sm btn--secondary btn-update"
+                          data-id="${o.id}"
+                          data-title="${escHtml(o.title)}"
+                          data-status="${o.status}">Update</button>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+
+      document.querySelectorAll('.btn-update').forEach(btn => {
+        btn.addEventListener('click', () => {
+          openModal({ id: btn.dataset.id, title: btn.dataset.title, status: btn.dataset.status });
+        });
+      });
+    } catch {
+      api.ui.setAlert(pageAlert, 'Could not load outages — is the backend running?', 'warn');
+    }
+  }
+
+  document.getElementById('btn-filter')?.addEventListener('click', loadDashboard);
+
+  updateForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const message = document.getElementById('update-message').value.trim();
+    const errEl   = document.getElementById('err-message');
+
+    if (!message) {
+      errEl.classList.add('visible');
+      document.getElementById('update-message').setAttribute('aria-invalid', 'true');
+      return;
+    }
+    errEl.classList.remove('visible');
+
+    const id     = document.getElementById('update-outage-id').value;
+    const status = document.getElementById('new-status').value;
+    const btn    = document.getElementById('update-submit');
+
+    btn.disabled = true;
+    btn.textContent = 'Posting…';
+
+    try {
+      await api.outages.updateStatus(id, status, message);
+      closeModal();
+      api.ui.toast('Outage updated successfully!', 'success');
+      loadDashboard();
+    } catch (err) {
+      api.ui.setAlert(modalAlert, err.message || 'Update failed.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Post Update';
+    }
+  });
+
+  function escHtml(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+</script>
+</body>
+</html>
