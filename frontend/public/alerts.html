@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alerts &amp; Notifications — WaterWatch SA</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    main { flex: 1; display: flex; flex-direction: column; padding: 1.5rem 1rem; max-width: 960px; margin: 0 auto; width: 100%; }
+    .page-title { font-size: 1.4rem; font-weight: 800; color: var(--blue-dark); margin-bottom: .25rem; }
+    .page-sub   { font-size: .9rem; color: var(--muted); margin-bottom: 1.5rem; }
+
+    .guest-banner {
+      background: var(--blue-light);
+      border: 1px solid var(--blue);
+      border-radius: var(--radius);
+      padding: .75rem 1rem;
+      font-size: .85rem;
+      color: var(--blue-dark);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .guest-banner a { color: var(--blue); font-weight: 600; white-space: nowrap; }
+
+    .coming-soon {
+      flex: 1;
+      min-height: 380px;
+      background: var(--blue-light);
+      border-radius: var(--radius);
+      border: 2px dashed var(--blue);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: .75rem;
+      text-align: center;
+      padding: 2rem;
+    }
+    .coming-soon .cs-icon { font-size: 3rem; }
+    .coming-soon h2 { font-size: 1.1rem; font-weight: 700; color: var(--blue-dark); }
+    .coming-soon p  { font-size: .875rem; color: var(--muted); max-width: 380px; line-height: 1.6; }
+    .coming-soon .badge-wip {
+      display: inline-block;
+      background: #fef3e2;
+      color: #b06000;
+      border-radius: 99px;
+      padding: .25rem .8rem;
+      font-size: .78rem;
+      font-weight: 700;
+    }
+
+    nav a { color: var(--blue); }
+    nav a.active { font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+    <circle cx="16" cy="16" r="16" fill="rgba(255,255,255,.15)"/>
+    <path d="M16 6 C16 6 8 14 8 19 a8 8 0 0 0 16 0 C24 14 16 6 16 6Z" fill="white"/>
+  </svg>
+  <div>
+    <h1>WaterWatch SA</h1>
+    <p>Water visibility for every South African</p>
+  </div>
+</header>
+
+<main>
+  <h2 class="page-title">🔔 Alerts &amp; Notifications</h2>
+  <p class="page-sub">Push, SMS, and email alerts for outages, restorations, and municipal announcements.</p>
+
+  <div class="guest-banner">
+    <span>You're browsing as a guest. <strong>Register</strong> to subscribe to outage alerts for your area.</span>
+    <a href="register.html">Create a free account →</a>
+  </div>
+
+  <div class="coming-soon">
+    <div class="cs-icon">🔔</div>
+    <span class="badge-wip">In development — Part 5</span>
+    <h2>Alerts &amp; announcements coming soon</h2>
+    <p>
+      This page will show your outage and restoration alerts, municipal announcements,
+      and let you manage your notification preferences (SMS via Clickatell,
+      email, and push via Firebase FCM).
+    </p>
+    <a href="register.html" class="btn btn-primary" style="margin-top:.5rem">Register to get alerts</a>
+  </div>
+</main>
+
+<nav aria-label="Feature navigation" style="background:var(--white);border-top:1px solid var(--border);padding:.75rem 1rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;font-size:.85rem;">
+  <a href="index.html">Home</a>
+  <a href="outages.html">Outage map</a>
+  <a href="outages.html">Report outage</a>
+  <a href="quality.html">Water quality</a>
+  <a href="alerts.html" class="active">Alerts</a>
+</nav>
+
+<footer>&copy; 2026 WaterWatch SA &nbsp;·&nbsp; Derivco Graduate Programme</footer>
+<script src="script.js"></script>
+</body>
+</html>

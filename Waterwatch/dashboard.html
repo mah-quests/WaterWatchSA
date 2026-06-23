@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WaterWatch SA — Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">💧</div>
+      <div>
+        <div class="logo-text">WaterWatch SA</div>
+        <div class="logo-sub">COMMUNITY PLATFORM</div>
+      </div>
+    </div>
+
+    <div class="nav-section">Navigation</div>
+    <a href="dashboard.html" class="nav-item active">
+      <span class="nav-icon">🏠</span> Overview
+    </a>
+    <a href="#" class="nav-item" id="nav-outages">
+      <span class="nav-icon">🚨</span> Outage Reports
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-icon">💧</span> Water Quality
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-icon">📋</span> Municipal Updates
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-icon">🔔</span> Alerts
+    </a>
+
+    <!-- Municipal-only nav items -->
+    <div id="municipal-nav" style="display:none">
+      <div class="nav-section">Municipal Tools</div>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">📊</span> Publish Update
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">🗺️</span> Coverage Map
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">📁</span> Reports
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="admin.html" class="nav-item" id="admin-link" style="display:none">
+        <span class="nav-icon">⚙️</span> Admin Panel
+      </a>
+      <a href="#" class="nav-item" id="logoutBtn">
+        <span class="nav-icon">🚪</span> Sign Out
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-title" id="pageTitle">Overview</div>
+      <div class="topbar-right">
+        <span id="roleBadge" class="role-badge"></span>
+        <div class="user-chip">
+          <div class="avatar" id="avatarEl"></div>
+          <span id="userNameEl"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <!-- Citizen dashboard -->
+      <div id="citizen-view">
+        <div class="section-header">
+          <div>
+            <div class="section-title" id="greeting"></div>
+            <div class="section-sub" id="location-line"></div>
+          </div>
+          <button class="btn btn-primary" id="reportOutageBtn">+ Report Outage</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon amber">🚨</div>
+            <div>
+              <div class="stat-value">3</div>
+              <div class="stat-label">Active outages near you</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue">💧</div>
+            <div>
+              <div class="stat-value">Good</div>
+              <div class="stat-label">Water quality status</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">✅</div>
+            <div>
+              <div class="stat-value">94%</div>
+              <div class="stat-label">Service uptime (30 days)</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red">⏱️</div>
+            <div>
+              <div class="stat-value">4.2h</div>
+              <div class="stat-label">Avg. restoration time</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Active Outages Near You</div>
+                <div class="card-subtitle">Within 5 km of your area</div>
+              </div>
+              <span class="badge badge-amber">3 Active</span>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Area</th><th>Type</th><th>Since</th><th>ETA</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Khayelitsha Section B</td>
+                  <td><span class="badge badge-red">Burst Main</span></td>
+                  <td>06:30</td><td>16:00</td>
+                </tr>
+                <tr>
+                  <td>Mitchells Plain</td>
+                  <td><span class="badge badge-amber">Planned</span></td>
+                  <td>08:00</td><td>14:00</td>
+                </tr>
+                <tr>
+                  <td>Gugulethu</td>
+                  <td><span class="badge badge-red">Pressure Drop</span></td>
+                  <td>10:15</td><td>Unknown</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Water Quality</div>
+                <div class="card-subtitle">Latest readings for your area</div>
+              </div>
+              <span class="badge badge-green">Safe to drink</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span class="text-sm">pH Level</span>
+                  <span class="text-sm" style="font-weight:600">7.2 <span class="badge badge-green">Normal</span></span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--green)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span class="text-sm">Turbidity</span>
+                  <span class="text-sm" style="font-weight:600">1.8 NTU <span class="badge badge-green">Normal</span></span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:18%;background:var(--blue-500)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span class="text-sm">Chlorine residual</span>
+                  <span class="text-sm" style="font-weight:600">0.5 mg/L <span class="badge badge-green">Normal</span></span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:50%;background:var(--blue-500)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span class="text-sm">E. coli</span>
+                  <span class="text-sm" style="font-weight:600">0 CFU/100mL <span class="badge badge-green">None detected</span></span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:2%;background:var(--green)"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-6">
+          <div class="card-header">
+            <div class="card-title">Recent Municipal Updates</div>
+            <a href="#" class="btn btn-secondary btn-sm">View all</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;gap:14px;padding-bottom:14px;border-bottom:1px solid var(--gray-100)">
+              <div style="width:40px;height:40px;background:var(--blue-100);border-radius:10px;display:grid;place-items:center;font-size:18px;flex-shrink:0">📢</div>
+              <div>
+                <div style="font-weight:600;font-size:14px">Scheduled maintenance — Table View, 25 Jun</div>
+                <div class="text-sm text-muted">Water supply will be interrupted from 08:00–16:00 on 25 June 2026 for pipeline replacement.</div>
+                <div class="text-sm text-muted" style="margin-top:4px">Cape Town Water · 2 hours ago</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:14px;padding-bottom:14px;border-bottom:1px solid var(--gray-100)">
+              <div style="width:40px;height:40px;background:#D1FAE5;border-radius:10px;display:grid;place-items:center;font-size:18px;flex-shrink:0">✅</div>
+              <div>
+                <div style="font-weight:600;font-size:14px">Service restored — Khayelitsha, 22 Jun</div>
+                <div class="text-sm text-muted">Water supply has been fully restored following burst main repairs. Thank you for your patience.</div>
+                <div class="text-sm text-muted" style="margin-top:4px">Cape Town Water · 1 day ago</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:14px">
+              <div style="width:40px;height:40px;background:#FEF3C7;border-radius:10px;display:grid;place-items:center;font-size:18px;flex-shrink:0">⚠️</div>
+              <div>
+                <div style="font-weight:600;font-size:14px">Water restriction Level 2 in effect</div>
+                <div class="text-sm text-muted">Level 2 water restrictions remain in effect. No hosepipe or sprinkler use between 09:00–16:00.</div>
+                <div class="text-sm text-muted" style="margin-top:4px">Cape Town Water · 3 days ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Municipal dashboard (additional section shown for municipal role) -->
+      <div id="municipal-view" style="display:none">
+        <div class="section-header" style="margin-top:32px">
+          <div>
+            <div class="section-title">Municipal Operations</div>
+            <div class="section-sub" id="muni-location"></div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-secondary">📥 Export Report</button>
+            <button class="btn btn-primary">+ Publish Update</button>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon red">🚨</div>
+            <div>
+              <div class="stat-value">7</div>
+              <div class="stat-label">Open outage tickets</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon amber">🔧</div>
+            <div>
+              <div class="stat-value">12</div>
+              <div class="stat-label">Crews dispatched</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">✅</div>
+            <div>
+              <div class="stat-value">89%</div>
+              <div class="stat-label">Resolution rate (7 days)</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue">👥</div>
+            <div>
+              <div class="stat-value">42k</div>
+              <div class="stat-label">Citizens served</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Open Outage Tickets</div>
+            <span class="badge badge-red">7 Unresolved</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Ticket</th><th>Area</th><th>Type</th><th>Reports</th><th>Priority</th><th>Status</th><th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#OT-1042</td><td>Khayelitsha B</td>
+                  <td>Burst Main</td><td>34</td>
+                  <td><span class="badge badge-red">Critical</span></td>
+                  <td><span class="badge badge-amber">In Progress</span></td>
+                  <td><button class="btn btn-sm btn-primary">Update</button></td>
+                </tr>
+                <tr>
+                  <td>#OT-1041</td><td>Gugulethu</td>
+                  <td>Pressure Drop</td><td>18</td>
+                  <td><span class="badge badge-amber">High</span></td>
+                  <td><span class="badge badge-blue">Assigned</span></td>
+                  <td><button class="btn btn-sm btn-primary">Update</button></td>
+                </tr>
+                <tr>
+                  <td>#OT-1039</td><td>Mitchells Plain</td>
+                  <td>Planned Maintenance</td><td>—</td>
+                  <td><span class="badge badge-gray">Routine</span></td>
+                  <td><span class="badge badge-green">Scheduled</span></td>
+                  <td><button class="btn btn-sm btn-secondary">View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Report Outage Modal -->
+<div class="modal-overlay" id="reportModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Report a Water Outage</div>
+      <button class="modal-close" id="closeModal">&times;</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label class="form-label">Outage type</label>
+        <select class="form-control">
+          <option>No water supply</option>
+          <option>Low pressure</option>
+          <option>Burst pipe / leak</option>
+          <option>Discoloured water</option>
+          <option>Foul smell / taste</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Street address</label>
+        <input type="text" class="form-control" placeholder="e.g. 12 Main Road, Khayelitsha">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description (optional)</label>
+        <textarea class="form-control" rows="3" placeholder="Any additional details…" style="resize:vertical"></textarea>
+      </div>
+      <div class="alert alert-info" style="font-size:13px">
+        📍 Your report will be shared with your municipality for action.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancelReport">Cancel</button>
+      <button class="btn btn-primary" id="submitReport">Submit Report</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="auth.js"></script>
+<script>
+  const session = Auth.requireAuth(['citizen', 'municipal', 'admin']);
+  if (!session) throw new Error('redirect');
+
+  // Populate topbar
+  document.getElementById('avatarEl').textContent    = session.name.charAt(0).toUpperCase();
+  document.getElementById('userNameEl').textContent  = session.name;
+  const rb = document.getElementById('roleBadge');
+  rb.textContent = session.role.charAt(0).toUpperCase() + session.role.slice(1);
+  rb.className   = 'role-badge ' + session.role;
+
+  // Greeting
+  const hour = new Date().getHours();
+  const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greeting').textContent     = greet + ', ' + session.name.split(' ')[0] + '!';
+  document.getElementById('location-line').textContent = session.municipality
+    ? 'Area: ' + session.municipality
+    : 'Your personalised water dashboard';
+
+  // Show municipal sections
+  if (session.role === 'municipal' || session.role === 'admin') {
+    document.getElementById('municipal-nav').style.display  = '';
+    document.getElementById('municipal-view').style.display = '';
+    document.getElementById('muni-location').textContent    = session.municipality || 'All municipalities';
+  }
+  if (session.role === 'admin') {
+    document.getElementById('admin-link').style.display = '';
+  }
+
+  // Report modal
+  document.getElementById('reportOutageBtn').addEventListener('click', () => {
+    document.getElementById('reportModal').classList.add('open');
+  });
+  document.getElementById('closeModal').addEventListener('click',   () => document.getElementById('reportModal').classList.remove('open'));
+  document.getElementById('cancelReport').addEventListener('click', () => document.getElementById('reportModal').classList.remove('open'));
+  document.getElementById('submitReport').addEventListener('click', () => {
+    document.getElementById('reportModal').classList.remove('open');
+    showToast('Outage report submitted. Your municipality has been notified.', 'success');
+  });
+
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', e => { e.preventDefault(); Auth.logout(); });
+
+  function showToast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    t.textContent = msg;
+    document.getElementById('toastContainer').appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+</script>
+</body>
+</html>
