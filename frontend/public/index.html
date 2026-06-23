@@ -97,6 +97,29 @@
       background: var(--green);
     }
 
+    .guest-note {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-top: -.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .guest-note a { color: var(--blue); }
+
+    a.feature-card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow .15s, transform .1s;
+    }
+    a.feature-card:hover {
+      box-shadow: 0 4px 20px rgba(26,111,181,.18);
+      transform: translateY(-2px);
+    }
+    a.feature-card:focus-visible {
+      outline: 3px solid var(--blue);
+      outline-offset: 3px;
+    }
+
     @media (max-width: 480px) {
       .hero-title { font-size: 1.5rem; }
       .cta-group  { flex-direction: column; align-items: center; }
@@ -138,30 +161,35 @@
 
   <div class="cta-group">
     <a href="register.html" class="btn btn-primary">Create an account</a>
-    <a href="#features" class="btn btn-outline">Learn more</a>
+    <a href="outages.html" class="btn btn-outline">Browse as guest</a>
   </div>
 
+  <p class="guest-note">
+    No account needed to view the map and water quality —
+    <a href="register.html">register</a> to report outages and receive alerts.
+  </p>
+
   <div class="features" id="features">
-    <div class="feature-card">
-      <div class="feature-icon">📍</div>
-      <h3>Report outages</h3>
-      <p>Log a water outage in your area with location, description, and photo.</p>
-    </div>
-    <div class="feature-card">
+    <a href="outages.html" class="feature-card">
       <div class="feature-icon">🗺️</div>
       <h3>Live outage map</h3>
       <p>See all active outages on a real-time map with status and restoration ETAs.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔔</div>
-      <h3>Instant alerts</h3>
-      <p>Get notified via SMS, email, or push when outages are reported or resolved.</p>
-    </div>
-    <div class="feature-card">
+    </a>
+    <a href="outages.html" class="feature-card">
+      <div class="feature-icon">📍</div>
+      <h3>Report an outage</h3>
+      <p>Log a water outage in your area with location, description, and photo.</p>
+    </a>
+    <a href="quality.html" class="feature-card">
       <div class="feature-icon">💧</div>
       <h3>Water quality</h3>
       <p>View water quality index readings for your suburb published by your municipality.</p>
-    </div>
+    </a>
+    <a href="alerts.html" class="feature-card">
+      <div class="feature-icon">🔔</div>
+      <h3>Alerts &amp; announcements</h3>
+      <p>Get notified via SMS, email, or push when outages are reported or resolved.</p>
+    </a>
   </div>
 
 </main>
