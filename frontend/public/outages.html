@@ -29,6 +29,8 @@
       background: none;
     }
     .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .tab-back { text-decoration: none; color: var(--muted); margin-right: .5rem; padding-left: 0; font-weight: 500; }
+    .tab-back:hover { color: var(--blue); }
     .tab-panel { display: none; flex: 1; overflow: hidden; }
     .tab-panel.active { display: flex; flex-direction: column; }
 
@@ -154,9 +156,19 @@
   </div>
 </header>
 
+<nav class="site-nav" aria-label="Main navigation">
+  <a href="index.html" class="nav-link">Home</a>
+  <a href="outages.html" class="nav-link active">Outage Map</a>
+  <a href="quality.html" class="nav-link">Water Quality</a>
+  <a href="alerts.html" class="nav-link">Alerts</a>
+  <span class="nav-spacer"></span>
+  <a href="register.html" class="nav-link nav-cta">Register</a>
+</nav>
+
 <main>
 
   <div class="tabs" role="tablist">
+    <a href="index.html" class="tab tab-back" aria-label="Back to Home">← Home</a>
     <button class="tab active" role="tab" aria-selected="true"  data-tab="map">&#128506;&#65039; Live Map</button>
     <button class="tab"        role="tab" aria-selected="false" data-tab="report">&#128205; Report Outage</button>
   </div>
