@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WaterWatch SA — Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">💧</div>
+      <div>
+        <div class="logo-text">WaterWatch SA</div>
+        <div class="logo-sub">ADMIN PANEL</div>
+      </div>
+    </div>
+
+    <div class="nav-section">Administration</div>
+    <a href="#" class="nav-item active" data-section="overview">
+      <span class="nav-icon">📊</span> Platform Overview
+    </a>
+    <a href="#" class="nav-item" data-section="users">
+      <span class="nav-icon">👥</span> User Management
+    </a>
+    <a href="#" class="nav-item" data-section="roles">
+      <span class="nav-icon">🔐</span> Roles & Permissions
+    </a>
+    <a href="#" class="nav-item" data-section="approvals">
+      <span class="nav-icon">✅</span> Pending Approvals
+      <span id="approvalBadge" class="badge badge-amber" style="margin-left:auto"></span>
+    </a>
+    <a href="#" class="nav-item" data-section="audit">
+      <span class="nav-icon">📋</span> Audit Log
+    </a>
+
+    <div class="nav-section">Platform</div>
+    <a href="dashboard.html" class="nav-item">
+      <span class="nav-icon">🏠</span> Live Dashboard
+    </a>
+    <div class="sidebar-footer">
+      <a href="#" class="nav-item" id="logoutBtn">
+        <span class="nav-icon">🚪</span> Sign Out
+      </a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-title" id="pageTitle">Platform Overview</div>
+      <div class="topbar-right">
+        <span class="role-badge admin">Admin</span>
+        <div class="user-chip">
+          <div class="avatar" id="avatarEl"></div>
+          <span id="userNameEl"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <!-- ── OVERVIEW ── -->
+      <div id="section-overview" class="admin-section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Platform Overview</div>
+            <div class="section-sub">Real-time WaterWatch SA health metrics</div>
+          </div>
+          <span class="badge badge-green">● All systems operational</span>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">👥</div>
+            <div><div class="stat-value" id="stat-total-users">—</div><div class="stat-label">Total users</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">✅</div>
+            <div><div class="stat-value" id="stat-verified">—</div><div class="stat-label">Verified accounts</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon amber">⏳</div>
+            <div><div class="stat-value" id="stat-pending">—</div><div class="stat-label">Pending approval</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red">🚨</div>
+            <div><div class="stat-value">10</div><div class="stat-label">Active outage reports</div></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Users by Role</div>
+            </div>
+            <div id="role-breakdown" style="display:flex;flex-direction:column;gap:14px"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Platform Health</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span class="text-sm">API uptime</span>
+                  <span class="text-sm;font-weight:600">99.8%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:99.8%;background:var(--green)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span class="text-sm">Alert delivery rate (SMS)</span>
+                  <span class="text-sm">97.2%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:97.2%;background:var(--blue-500)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span class="text-sm">Map tile cache hit</span>
+                  <span class="text-sm">84%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:84%;background:var(--blue-300)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                  <span class="text-sm">DB connections (of 100)</span>
+                  <span class="text-sm">23 active</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:23%;background:var(--amber)"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── USER MANAGEMENT ── -->
+      <div id="section-users" class="admin-section" style="display:none">
+        <div class="section-header">
+          <div>
+            <div class="section-title">User Management</div>
+            <div class="section-sub">Manage all registered accounts</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input id="userSearch" type="search" class="form-control" placeholder="Search by name or email…" style="width:240px">
+            <select id="roleFilter" class="form-control" style="width:160px">
+              <option value="">All roles</option>
+              <option value="admin">Admin</option>
+              <option value="municipal">Municipal</option>
+              <option value="citizen">Citizen</option>
+            </select>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th><th>Email</th><th>Role</th><th>Municipality</th><th>Verified</th><th>Joined</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ROLES & PERMISSIONS ── -->
+      <div id="section-roles" class="admin-section" style="display:none">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Roles &amp; Permissions</div>
+            <div class="section-sub">Permission matrix for each access level</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Permission</th>
+                  <th style="text-align:center">Citizen</th>
+                  <th style="text-align:center">Municipal</th>
+                  <th style="text-align:center">Admin</th>
+                </tr>
+              </thead>
+              <tbody id="permMatrix"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card mt-6">
+          <div class="card-header">
+            <div class="card-title">Role Definitions</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="padding:16px;background:var(--blue-50);border-radius:var(--radius-sm);border:1px solid var(--blue-300)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <span class="role-badge citizen">Citizen</span>
+                <strong style="font-size:14px">Community Member</strong>
+              </div>
+              <p class="text-sm text-muted">Any verified South African resident. Can view outage reports, water quality data, and municipal updates. Can report outages and subscribe to alerts for their area.</p>
+            </div>
+            <div style="padding:16px;background:#D1FAE5;border-radius:var(--radius-sm);border:1px solid #6EE7B7">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <span class="role-badge municipal">Municipal</span>
+                <strong style="font-size:14px">Municipal Official</strong>
+              </div>
+              <p class="text-sm text-muted">Verified municipal staff. Can publish official updates, manage outage tickets for their municipality, view operational reports, and broadcast alerts. Requires admin approval on registration.</p>
+            </div>
+            <div style="padding:16px;background:#FEF3C7;border-radius:var(--radius-sm);border:1px solid #FCD34D">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <span class="role-badge admin">Admin</span>
+                <strong style="font-size:14px">Platform Administrator</strong>
+              </div>
+              <p class="text-sm text-muted">Full platform access. Can manage all users, assign/revoke roles, approve municipal accounts, view audit logs, and configure platform settings. Assigned only by other admins.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PENDING APPROVALS ── -->
+      <div id="section-approvals" class="admin-section" style="display:none">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Pending Approvals</div>
+            <div class="section-sub">Municipal accounts awaiting verification</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Name</th><th>Email</th><th>Municipality</th><th>Registered</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="approvalsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── AUDIT LOG ── -->
+      <div id="section-audit" class="admin-section" style="display:none">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Audit Log</div>
+            <div class="section-sub">All admin actions on the platform</div>
+          </div>
+          <button class="btn btn-secondary btn-sm">📥 Export CSV</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Timestamp</th><th>Admin</th><th>Action</th><th>Target</th><th>Result</th></tr>
+              </thead>
+              <tbody id="auditTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Edit Role Modal -->
+<div class="modal-overlay" id="editRoleModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Change User Role</div>
+      <button class="modal-close" id="closeEditModal">&times;</button>
+    </div>
+    <p class="text-sm text-muted" style="margin-bottom:16px">
+      Changing the role of <strong id="editUserName"></strong>.
+    </p>
+    <div class="form-group">
+      <label class="form-label">New role</label>
+      <select id="editRoleSelect" class="form-control">
+        <option value="citizen">Citizen</option>
+        <option value="municipal">Municipal</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancelEditRole">Cancel</button>
+      <button class="btn btn-primary"   id="confirmEditRole">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" style="color:var(--red)">Delete User</div>
+      <button class="modal-close" id="closeDeleteModal">&times;</button>
+    </div>
+    <p class="text-sm" style="margin-bottom:16px">
+      Are you sure you want to permanently delete <strong id="deleteUserName"></strong>? This action cannot be undone.
+    </p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancelDelete">Cancel</button>
+      <button class="btn btn-danger"    id="confirmDelete">Delete User</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="auth.js"></script>
+<script>
+  const session = Auth.requireAuth(['admin']);
+  if (!session) throw new Error('redirect');
+
+  document.getElementById('avatarEl').textContent   = session.name.charAt(0).toUpperCase();
+  document.getElementById('userNameEl').textContent = session.name;
+
+  // Permission matrix data
+  const PERMISSIONS = [
+    { label: 'View outage reports',         citizen: true,  municipal: true,  admin: true  },
+    { label: 'View water quality data',     citizen: true,  municipal: true,  admin: true  },
+    { label: 'View municipal updates',      citizen: true,  municipal: true,  admin: true  },
+    { label: 'Subscribe to alerts',         citizen: true,  municipal: true,  admin: true  },
+    { label: 'Submit outage report',        citizen: true,  municipal: true,  admin: true  },
+    { label: 'Publish official update',     citizen: false, municipal: true,  admin: true  },
+    { label: 'Manage outage tickets',       citizen: false, municipal: true,  admin: true  },
+    { label: 'Broadcast SMS alert',         citizen: false, municipal: true,  admin: true  },
+    { label: 'View operational reports',    citizen: false, municipal: true,  admin: true  },
+    { label: 'View all municipalities',     citizen: false, municipal: false, admin: true  },
+    { label: 'Manage user roles',           citizen: false, municipal: false, admin: true  },
+    { label: 'Approve municipal accounts',  citizen: false, municipal: false, admin: true  },
+    { label: 'Delete users',               citizen: false, municipal: false, admin: true  },
+    { label: 'View audit log',             citizen: false, municipal: false, admin: true  },
+    { label: 'Configure platform settings', citizen: false, municipal: false, admin: true  },
+  ];
+
+  // Audit log seed
+  const AUDIT_LOG = [
+    { ts: '2026-06-23 09:14', admin: 'Admin User', action: 'ROLE_CHANGE',    target: 'zanele@gmail.com',            result: 'citizen → municipal' },
+    { ts: '2026-06-22 16:05', admin: 'Admin User', action: 'ACCOUNT_VERIFY', target: 'municipal@capetown.gov.za',   result: 'Verified' },
+    { ts: '2026-06-20 11:30', admin: 'Admin User', action: 'USER_DELETE',    target: 'spam@test.com',               result: 'Deleted' },
+    { ts: '2026-06-18 08:55', admin: 'Admin User', action: 'ROLE_CHANGE',    target: 'thabo@gmail.com',             result: 'municipal → citizen' },
+    { ts: '2026-06-15 14:20', admin: 'Admin User', action: 'ACCOUNT_VERIFY', target: 'test@joburg.gov.za',          result: 'Verified' },
+  ];
+
+  let editTargetId   = null;
+  let deleteTargetId = null;
+
+  // ── Section navigation ──
+  document.querySelectorAll('.nav-item[data-section]').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const sec = link.dataset.section;
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      link.classList.add('active');
+      document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
+      document.getElementById('section-' + sec).style.display = '';
+      document.getElementById('pageTitle').textContent = link.querySelector('.nav-icon').nextSibling.textContent.trim();
+      if (sec === 'users')     renderUsers();
+      if (sec === 'roles')     renderPermMatrix();
+      if (sec === 'approvals') renderApprovals();
+      if (sec === 'audit')     renderAuditLog();
+    });
+  });
+
+  // ── Overview ──
+  function renderOverview() {
+    const users    = Auth.getAllUsers();
+    const verified = users.filter(u => u.verified).length;
+    const pending  = users.filter(u => !u.verified).length;
+    document.getElementById('stat-total-users').textContent = users.length;
+    document.getElementById('stat-verified').textContent    = verified;
+    document.getElementById('stat-pending').textContent     = pending;
+    document.getElementById('approvalBadge').textContent    = pending || '';
+
+    const counts = users.reduce((acc, u) => { acc[u.role] = (acc[u.role]||0)+1; return acc; }, {});
+    const roleColors = { admin:'#92400E', municipal:'#065F46', citizen:'var(--blue-900)' };
+    const roleBgs    = { admin:'#FEF3C7',  municipal:'#D1FAE5',  citizen:'var(--blue-100)' };
+    document.getElementById('role-breakdown').innerHTML = Object.entries(counts).map(([role, count]) => `
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="role-badge ${role}">${role.charAt(0).toUpperCase()+role.slice(1)}</span>
+          <span class="text-sm">${count} user${count!==1?'s':''}</span>
+        </div>
+        <div style="flex:1;margin:0 16px">
+          <div class="progress-bar"><div class="progress-fill" style="width:${Math.round(count/users.length*100)}%;background:${roleColors[role]}"></div></div>
+        </div>
+        <span class="text-sm text-muted">${Math.round(count/users.length*100)}%</span>
+      </div>
+    `).join('');
+  }
+
+  // ── User table ──
+  function renderUsers() {
+    const search = (document.getElementById('userSearch').value || '').toLowerCase();
+    const filter = document.getElementById('roleFilter').value;
+    let users = Auth.getAllUsers().filter(u => {
+      const matchSearch = !search || u.name.toLowerCase().includes(search) || u.email.toLowerCase().includes(search);
+      const matchRole   = !filter || u.role === filter;
+      return matchSearch && matchRole;
+    });
+    document.getElementById('usersTableBody').innerHTML = users.length ? users.map(u => `
+      <tr>
+        <td><div style="font-weight:600">${u.name}</div></td>
+        <td><span class="text-sm text-muted">${u.email}</span></td>
+        <td><span class="role-badge ${u.role}">${u.role.charAt(0).toUpperCase()+u.role.slice(1)}</span></td>
+        <td>${u.municipality || '<span class="text-muted">—</span>'}</td>
+        <td>${u.verified
+          ? '<span class="badge badge-green">✓ Verified</span>'
+          : '<span class="badge badge-amber">Pending</span>'}</td>
+        <td class="text-sm text-muted">${u.createdAt}</td>
+        <td>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm btn-secondary" onclick="openEditRole('${u.id}','${u.name}','${u.role}')">Change Role</button>
+            <button class="btn btn-sm btn-secondary" onclick="toggleVerify('${u.id}')">${u.verified ? 'Unverify' : 'Verify'}</button>
+            ${u.id !== session.id
+              ? `<button class="btn btn-sm btn-danger" onclick="openDelete('${u.id}','${u.name}')">Delete</button>`
+              : '<span class="text-sm text-muted" style="padding:6px 8px">(you)</span>'}
+          </div>
+        </td>
+      </tr>
+    `).join('') : '<tr><td colspan="7" class="empty-state"><div class="empty-icon">🔍</div><p>No users match your search.</p></td></tr>';
+  }
+
+  document.getElementById('userSearch').addEventListener('input',  renderUsers);
+  document.getElementById('roleFilter').addEventListener('change', renderUsers);
+
+  // ── Permission matrix ──
+  function renderPermMatrix() {
+    const tick  = role => '<td style="text-align:center"><span style="color:var(--green);font-size:16px">✓</span></td>';
+    const cross = ()   => '<td style="text-align:center"><span style="color:var(--gray-300);font-size:16px">—</span></td>';
+    document.getElementById('permMatrix').innerHTML = PERMISSIONS.map(p => `
+      <tr>
+        <td class="text-sm">${p.label}</td>
+        ${p.citizen   ? tick() : cross()}
+        ${p.municipal ? tick() : cross()}
+        ${p.admin     ? tick() : cross()}
+      </tr>
+    `).join('');
+  }
+
+  // ── Approvals ──
+  function renderApprovals() {
+    const pending = Auth.getAllUsers().filter(u => !u.verified && u.role === 'municipal');
+    document.getElementById('approvalsTableBody').innerHTML = pending.length
+      ? pending.map(u => `
+          <tr>
+            <td><strong>${u.name}</strong></td>
+            <td class="text-sm text-muted">${u.email}</td>
+            <td>${u.municipality || '—'}</td>
+            <td class="text-sm text-muted">${u.createdAt}</td>
+            <td>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-sm btn-success" onclick="approveUser('${u.id}')">Approve</button>
+                <button class="btn btn-sm btn-danger"  onclick="openDelete('${u.id}','${u.name}')">Reject</button>
+              </div>
+            </td>
+          </tr>`)
+        .join('')
+      : '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">🎉</div><p>No pending approvals.</p></div></td></tr>';
+  }
+
+  function approveUser(id) {
+    Auth.toggleVerified(id);
+    showToast('Account approved and activated.', 'success');
+    addAuditEntry('ACCOUNT_VERIFY', Auth.getAllUsers().find(u=>u.id===id)?.email || id, 'Verified');
+    renderApprovals();
+    renderOverview();
+  }
+
+  // ── Audit log ──
+  function renderAuditLog() {
+    const log = JSON.parse(sessionStorage.getItem('ww_audit') || '[]').concat(AUDIT_LOG);
+    document.getElementById('auditTableBody').innerHTML = log.map(e => `
+      <tr>
+        <td class="text-sm text-muted">${e.ts}</td>
+        <td class="text-sm">${e.admin}</td>
+        <td><span class="badge badge-blue">${e.action}</span></td>
+        <td class="text-sm text-muted">${e.target}</td>
+        <td class="text-sm">${e.result}</td>
+      </tr>
+    `).join('');
+  }
+
+  function addAuditEntry(action, target, result) {
+    const log = JSON.parse(sessionStorage.getItem('ww_audit') || '[]');
+    const now  = new Date();
+    const ts   = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    log.unshift({ ts, admin: session.name, action, target, result });
+    sessionStorage.setItem('ww_audit', JSON.stringify(log));
+  }
+
+  // ── Role edit ──
+  window.openEditRole = (id, name, currentRole) => {
+    editTargetId = id;
+    document.getElementById('editUserName').textContent   = name;
+    document.getElementById('editRoleSelect').value       = currentRole;
+    document.getElementById('editRoleModal').classList.add('open');
+  };
+  document.getElementById('closeEditModal').addEventListener('click', () => document.getElementById('editRoleModal').classList.remove('open'));
+  document.getElementById('cancelEditRole').addEventListener('click', () => document.getElementById('editRoleModal').classList.remove('open'));
+  document.getElementById('confirmEditRole').addEventListener('click', () => {
+    const newRole = document.getElementById('editRoleSelect').value;
+    Auth.updateUserRole(editTargetId, newRole);
+    document.getElementById('editRoleModal').classList.remove('open');
+    showToast('User role updated successfully.', 'success');
+    const u = Auth.getAllUsers().find(u => u.id === editTargetId);
+    addAuditEntry('ROLE_CHANGE', u?.email || editTargetId, 'Role set to ' + newRole);
+    renderUsers();
+    renderOverview();
+  });
+
+  // ── Delete ──
+  window.openDelete = (id, name) => {
+    deleteTargetId = id;
+    document.getElementById('deleteUserName').textContent = name;
+    document.getElementById('deleteModal').classList.add('open');
+  };
+  document.getElementById('closeDeleteModal').addEventListener('click', () => document.getElementById('deleteModal').classList.remove('open'));
+  document.getElementById('cancelDelete').addEventListener('click',     () => document.getElementById('deleteModal').classList.remove('open'));
+  document.getElementById('confirmDelete').addEventListener('click', () => {
+    const u = Auth.getAllUsers().find(u => u.id === deleteTargetId);
+    Auth.deleteUser(deleteTargetId);
+    document.getElementById('deleteModal').classList.remove('open');
+    showToast('User account deleted.', 'error');
+    addAuditEntry('USER_DELETE', u?.email || deleteTargetId, 'Deleted');
+    renderUsers();
+    renderApprovals();
+    renderOverview();
+  });
+
+  window.toggleVerify = id => {
+    Auth.toggleVerified(id);
+    const u = Auth.getAllUsers().find(u => u.id === id);
+    showToast(u?.verified ? 'Account verified.' : 'Account unverified.', 'success');
+    addAuditEntry('ACCOUNT_VERIFY', u?.email || id, u?.verified ? 'Verified' : 'Unverified');
+    renderUsers();
+    renderOverview();
+  };
+
+  function showToast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className   = 'toast ' + type;
+    t.textContent = msg;
+    document.getElementById('toastContainer').appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', e => { e.preventDefault(); Auth.logout(); });
+
+  // Init
+  renderOverview();
+</script>
+</body>
+</html>
