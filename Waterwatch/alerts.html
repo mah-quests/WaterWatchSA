@@ -13,7 +13,7 @@
 
     <!-- ══════════════════════════ HEADER ══════════════════════════ -->
     <header>
-        <a class="header-brand" href="../frontend/public/index.html">
+        <a class="header-brand" href="index.html">
             <div class="drop">
                 <svg viewBox="0 0 24 24">
                     <path d="M12 2C12 2 4 10 4 15.5C4 19.6 7.6 23 12 23C16.4 23 20 19.6 20 15.5C20 10 12 2 12 2Z"/>
@@ -24,7 +24,7 @@
 
         <div class="header-right">
             <nav class="nav-links">
-                <a href="../frontend/public/index.html">Dashboard</a>
+                <a href="index.html">Dashboard</a>
                 <a href="#">Outages</a>
                 <a href="alerts.html" class="active">Alerts</a>
                 <a href="#">Quality</a>
@@ -86,10 +86,8 @@
                 <div class="panel-head">Notification Preferences</div>
                 <div class="panel-body">
 
-                    <!-- Delivery channels -->
                     <div class="pref-section">
                         <div class="pref-section-title">Channels</div>
-
                         <div class="pref-row">
                             <div class="pref-label">
                                 <div class="ch-icon" style="background:#e8f0fe;">📲</div>
@@ -100,7 +98,6 @@
                                 <span class="toggle-track"></span>
                             </label>
                         </div>
-
                         <div class="pref-row">
                             <div class="pref-label">
                                 <div class="ch-icon" style="background:#fff3cd;">💬</div>
@@ -111,7 +108,6 @@
                                 <span class="toggle-track"></span>
                             </label>
                         </div>
-
                         <div class="pref-row">
                             <div class="pref-label">
                                 <div class="ch-icon" style="background:#e2f8f0;">📧</div>
@@ -124,33 +120,15 @@
                         </div>
                     </div>
 
-                    <!-- Alert type toggles -->
                     <div class="pref-section">
                         <div class="pref-section-title">Alert Types</div>
-
-                        <div class="pref-row">
-                            <div class="pref-label">🔴 Outage Detected</div>
-                            <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
-                        </div>
-                        <div class="pref-row">
-                            <div class="pref-label">🟢 Water Restored</div>
-                            <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
-                        </div>
-                        <div class="pref-row">
-                            <div class="pref-label">🟣 Quality Warning</div>
-                            <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
-                        </div>
-                        <div class="pref-row">
-                            <div class="pref-label">🟠 ETA Escalation</div>
-                            <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
-                        </div>
-                        <div class="pref-row">
-                            <div class="pref-label">🔵 Municipal Updates</div>
-                            <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
-                        </div>
+                        <div class="pref-row"><div class="pref-label">🔴 Outage Detected</div><label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label></div>
+                        <div class="pref-row"><div class="pref-label">🟢 Water Restored</div><label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label></div>
+                        <div class="pref-row"><div class="pref-label">🟣 Quality Warning</div><label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label></div>
+                        <div class="pref-row"><div class="pref-label">🟠 ETA Escalation</div><label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label></div>
+                        <div class="pref-row"><div class="pref-label">🔵 Municipal Updates</div><label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label></div>
                     </div>
 
-                    <!-- Area subscriptions -->
                     <div class="pref-section">
                         <div class="pref-section-title">Subscribed Areas</div>
                         <div style="font-size:0.82rem; color:var(--muted); line-height:1.6;">
@@ -158,46 +136,27 @@
                             📍 Western Cape — Cape Town<br>
                             📍 KwaZulu-Natal — Durban
                         </div>
-                        <button class="add-area-btn"
-                            onclick="alert('Area subscription management — Sprint 3, US-09')">
+                        <button class="add-area-btn" onclick="alert('Area subscription management — Sprint 3, US-09')">
                             + Add area subscription
                         </button>
                     </div>
 
                 </div>
             </div>
-
         </div>
 
         <!-- ── RIGHT: Alert feed ── -->
         <div class="alerts-wrap">
-
-            <!-- Filter tabs -->
             <div class="filter-tabs">
-                <button class="filter-tab active" data-filter="all"          onclick="setFilter('all')">
-                    All <span class="tab-count" id="cnt-all">0</span>
-                </button>
-                <button class="filter-tab"        data-filter="outage"       onclick="setFilter('outage')">
-                    Outage <span class="tab-count" id="cnt-outage">0</span>
-                </button>
-                <button class="filter-tab"        data-filter="restoration"  onclick="setFilter('restoration')">
-                    Restored <span class="tab-count" id="cnt-restoration">0</span>
-                </button>
-                <button class="filter-tab"        data-filter="quality"      onclick="setFilter('quality')">
-                    Quality <span class="tab-count" id="cnt-quality">0</span>
-                </button>
-                <button class="filter-tab"        data-filter="escalation"   onclick="setFilter('escalation')">
-                    Escalated <span class="tab-count" id="cnt-escalation">0</span>
-                </button>
-                <button class="filter-tab"        data-filter="municipal"    onclick="setFilter('municipal')">
-                    Municipal <span class="tab-count" id="cnt-municipal">0</span>
-                </button>
+                <button class="filter-tab active" data-filter="all"         onclick="setFilter('all')">All <span class="tab-count" id="cnt-all">0</span></button>
+                <button class="filter-tab"        data-filter="outage"      onclick="setFilter('outage')">Outage <span class="tab-count" id="cnt-outage">0</span></button>
+                <button class="filter-tab"        data-filter="restoration" onclick="setFilter('restoration')">Restored <span class="tab-count" id="cnt-restoration">0</span></button>
+                <button class="filter-tab"        data-filter="quality"     onclick="setFilter('quality')">Quality <span class="tab-count" id="cnt-quality">0</span></button>
+                <button class="filter-tab"        data-filter="escalation"  onclick="setFilter('escalation')">Escalated <span class="tab-count" id="cnt-escalation">0</span></button>
+                <button class="filter-tab"        data-filter="municipal"   onclick="setFilter('municipal')">Municipal <span class="tab-count" id="cnt-municipal">0</span></button>
                 <button class="mark-all-btn" onclick="markAllRead()">Mark all read</button>
             </div>
-
-            <!-- Dynamically rendered alert cards -->
             <div class="alert-list" id="alert-list"></div>
-
         </div>
 
     </div>
