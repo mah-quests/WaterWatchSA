@@ -1,0 +1,136 @@
+/* ── WaterWatch SA — Shared Styles ─────────────────── */
+
+/* Reset & tokens */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue:       #1a6fb5;
+  --blue-dark:  #124e82;
+  --blue-light: #e8f2fb;
+  --green:      #2e8b57;
+  --error:      #c0392b;
+  --text:       #1a1a1a;
+  --muted:      #5a5a5a;
+  --border:     #c8c8c8;
+  --bg:         #f4f7fb;
+  --white:      #ffffff;
+  --radius:     8px;
+  --shadow:     0 2px 12px rgba(0,0,0,.10);
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ───────────────────────────────────────── */
+header {
+  background: var(--blue);
+  color: var(--white);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+header svg { flex-shrink: 0; }
+header h1  { font-size: 1.25rem; font-weight: 700; letter-spacing: .01em; }
+header p   { font-size: .8rem; opacity: .85; }
+
+/* ── Footer ───────────────────────────────────────── */
+footer {
+  text-align: center;
+  font-size: .78rem;
+  color: var(--muted);
+  padding: 1.2rem;
+}
+
+/* ── Card ─────────────────────────────────────────── */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+}
+
+/* ── Buttons ──────────────────────────────────────── */
+.btn {
+  display: inline-block;
+  padding: .75rem 1.5rem;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: background .15s, transform .1s;
+}
+.btn:active { transform: scale(.98); }
+.btn-primary   { background: var(--blue);  color: var(--white); }
+.btn-primary:hover { background: var(--blue-dark); }
+.btn-outline   { background: transparent; color: var(--blue); border: 2px solid var(--blue); }
+.btn-outline:hover { background: var(--blue-light); }
+.btn:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+
+/* ── Form elements ────────────────────────────────── */
+.field { margin-bottom: 1.1rem; }
+
+label {
+  display: block;
+  font-size: .875rem;
+  font-weight: 600;
+  margin-bottom: .35rem;
+}
+label .required { color: var(--error); margin-left: 2px; }
+label .hint     { font-weight: 400; color: var(--muted); font-size: .8rem; }
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+select {
+  width: 100%;
+  padding: .65rem .8rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--white);
+  transition: border-color .15s, box-shadow .15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(26,111,181,.18);
+}
+input[aria-invalid="true"],
+select[aria-invalid="true"] { border-color: var(--error); }
+
+.field-error {
+  font-size: .78rem;
+  color: var(--error);
+  margin-top: .25rem;
+  display: none;
+}
+.field-error.visible { display: block; }
+
+.toast {
+  display: none;
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  font-size: .9rem;
+  margin-bottom: 1rem;
+}
+.toast.success { background: #eafaf1; color: #1d6a41; border: 1px solid #27ae60; display: block; }
+.toast.error   { background: #fdf0ee; color: var(--error); border: 1px solid var(--error); display: block; }
+
+/* ── Reduced motion ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; }
+}

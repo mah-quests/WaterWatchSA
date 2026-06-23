@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Outages — WaterWatch SA</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <style>
+    main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      background: var(--white);
+      padding: 0 1rem;
+      flex-shrink: 0;
+    }
+    .tab {
+      padding: .75rem 1.25rem;
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      background: none;
+    }
+    .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .tab-panel { display: none; flex: 1; overflow: hidden; }
+    .tab-panel.active { display: flex; flex-direction: column; }
+
+    /* Search bar */
+    .search-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      padding: .65rem 1rem;
+      background: #f8f9fa;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .search-bar input,
+    .search-bar select { flex: 1 1 130px; padding: .4rem .6rem; font-size: .875rem; }
+    .search-bar .btn   { padding: .4rem 1rem; font-size: .875rem; }
+
+    /* Map + sidebar */
+    .map-layout { display: flex; flex: 1; overflow: hidden; }
+    #map { flex: 1; min-height: 420px; }
+
+    .outage-sidebar {
+      width: 300px;
+      overflow-y: auto;
+      border-left: 1px solid var(--border);
+      background: var(--white);
+      flex-shrink: 0;
+    }
+    .sidebar-count {
+      padding: .55rem 1rem;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      background: #f8f9fa;
+    }
+
+    /* Outage cards */
+    .outage-card {
+      padding: .75rem 1rem;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: background .1s;
+    }
+    .outage-card:hover  { background: var(--blue-light); }
+    .outage-card.active { background: var(--blue-light); border-left-color: var(--blue); }
+    .oc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .3rem; gap: .4rem; }
+    .oc-location { font-size: .875rem; font-weight: 700; }
+    .oc-desc { font-size: .8rem; color: var(--muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .oc-time { font-size: .72rem; color: #aaa; margin-top: .3rem; }
+
+    /* Status badges */
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+    .badge-reported    { background: #fce8e6; color: #c0392b; }
+    .badge-confirmed   { background: #fef3e2; color: #b06000; }
+    .badge-in_progress { background: #fef9e7; color: #856404; }
+    .badge-resolved    { background: #e6f4ea; color: #1d6a41; }
+
+    /* Legend */
+    .legend {
+      position: absolute;
+      bottom: 24px;
+      left: 8px;
+      z-index: 1000;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: .6rem .8rem;
+      font-size: .75rem;
+    }
+    .legend-item { display: flex; align-items: center; gap: .4rem; margin-bottom: .25rem; }
+    .legend-item:last-child { margin-bottom: 0; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Empty state */
+    .empty-state { padding: 2rem 1rem; text-align: center; color: var(--muted); font-size: .875rem; }
+
+    /* Report tab */
+    .report-panel { flex: 1; overflow-y: auto; display: flex; justify-content: center; padding: 2rem 1rem; }
+    .report-panel .card { width: 100%; max-width: 580px; }
+    .card-title    { font-size: 1.2rem; font-weight: 700; color: var(--blue-dark); margin-bottom: .25rem; }
+    .card-subtitle { font-size: .875rem; color: var(--muted); margin-bottom: 1.5rem; }
+
+    .row-2 { display: flex; gap: .75rem; }
+    .row-2 .field { flex: 1; }
+
+    .loc-row { display: flex; gap: .5rem; align-items: flex-end; }
+    .loc-row .field { flex: 1; margin-bottom: 0; }
+
+    textarea {
+      width: 100%;
+      padding: .65rem .8rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,111,181,.18); }
+
+    .btn-full { width: 100%; margin-top: 1.25rem; padding: .8rem; }
+
+    @media (max-width: 640px) {
+      .outage-sidebar { display: none; }
+      #map { min-height: 320px; }
+      .row-2, .loc-row { flex-direction: column; }
+      .loc-row .field { margin-bottom: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+    <circle cx="16" cy="16" r="16" fill="rgba(255,255,255,.15)"/>
+    <path d="M16 6 C16 6 8 14 8 19 a8 8 0 0 0 16 0 C24 14 16 6 16 6Z" fill="white"/>
+  </svg>
+  <div>
+    <h1>WaterWatch SA</h1>
+    <p>Water visibility for every South African</p>
+  </div>
+</header>
+
+<main>
+
+  <div class="tabs" role="tablist">
+    <button class="tab active" role="tab" aria-selected="true"  data-tab="map">&#128506;&#65039; Live Map</button>
+    <button class="tab"        role="tab" aria-selected="false" data-tab="report">&#128205; Report Outage</button>
+  </div>
+
+  <!-- ── Map tab ───────────────────────────────────────── -->
+  <div class="tab-panel active" id="panel-map">
+    <div class="search-bar">
+      <input id="fSuburb"  type="text"   placeholder="Filter by suburb" />
+      <input id="fMuni"    type="text"   placeholder="Filter by municipality" />
+      <select id="fStatus">
+        <option value="">All statuses</option>
+        <option value="reported">Reported</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="in_progress">In Progress</option>
+        <option value="resolved">Resolved</option>
+      </select>
+      <button class="btn btn-primary" id="btnSearch">Search</button>
+      <button class="btn btn-outline" id="btnClear">Clear</button>
+    </div>
+    <div class="map-layout">
+      <div id="map" style="position:relative">
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#ea4335"></div> Reported</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#fa7b17"></div> Confirmed</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#fbbc04"></div> In Progress</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#34a853"></div> Resolved</div>
+        </div>
+      </div>
+      <div class="outage-sidebar">
+        <div class="sidebar-count" id="sidebarCount">Loading…</div>
+        <div id="outageList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Report tab ─────────────────────────────────────── -->
+  <div class="tab-panel" id="panel-report">
+    <div class="report-panel">
+      <div class="card">
+        <h2 class="card-title">Report a water outage</h2>
+        <p class="card-subtitle">Your report appears on the live map immediately so neighbours and municipalities can see it.</p>
+
+        <div id="reportToast" class="toast" role="alert" aria-live="polite"></div>
+
+        <form id="reportForm" novalidate>
+
+          <div class="row-2">
+            <div class="field">
+              <label for="rSuburb">Suburb <span class="required">*</span></label>
+              <input id="rSuburb" name="suburb" type="text" placeholder="e.g. Soweto" required />
+              <p class="field-error" id="err-rSuburb">Required.</p>
+            </div>
+            <div class="field">
+              <label for="rMuni">Municipality <span class="required">*</span></label>
+              <input id="rMuni" name="municipality" type="text" placeholder="e.g. City of Joburg" required />
+              <p class="field-error" id="err-rMuni">Required.</p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="rDesc">Description <span class="required">*</span></label>
+            <textarea id="rDesc" name="description" rows="4" maxlength="1000"
+              placeholder="What's happening? How many households are affected?"></textarea>
+            <p class="field-error" id="err-rDesc">Required.</p>
+          </div>
+
+          <div class="field">
+            <label>Location <span class="required">*</span></label>
+            <div class="loc-row">
+              <div class="field">
+                <input id="rLat" name="latitude"  type="number" step="any" placeholder="Latitude" />
+                <p class="field-error" id="err-rLat">Enter a valid SA latitude (−35 to −22).</p>
+              </div>
+              <div class="field">
+                <input id="rLng" name="longitude" type="number" step="any" placeholder="Longitude" />
+                <p class="field-error" id="err-rLng">Enter a valid SA longitude (16 to 33).</p>
+              </div>
+              <button type="button" class="btn btn-outline" id="geoBtn"
+                style="white-space:nowrap;padding:.65rem .8rem;margin-bottom:1.1rem">&#128205; My location</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="rPhoto">Photo <span class="hint">(optional)</span></label>
+            <input id="rPhoto" name="photo" type="file" accept="image/jpeg,image/png,image/webp"
+              style="font-size:.875rem" />
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full">Submit report</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  &copy; 2026 WaterWatch SA &nbsp;&middot;&nbsp; Derivco Graduate Programme
+</footer>
+
+<script src="script.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+// ── Seed data ─────────────────────────────────────────────────────────────
+const SEED = [
+  { id:1, suburb:'Soweto',         municipality:'City of Johannesburg', description:'No water pressure since yesterday morning. Multiple streets affected.',              status:'confirmed',   latitude:-26.2676, longitude:27.8586, created_at:new Date(Date.now()-86400000).toISOString() },
+  { id:2, suburb:'Mitchells Plain',municipality:'City of Cape Town',    description:'Complete water outage. Burst main pipe on Beacon Way.',                             status:'in_progress', latitude:-34.0486, longitude:18.6136, created_at:new Date(Date.now()-43200000).toISOString() },
+  { id:3, suburb:'Umlazi',         municipality:'eThekwini',            description:'Water discoloured and smells bad. Reported to municipality with no response yet.',   status:'reported',    latitude:-29.9726, longitude:30.8961, created_at:new Date(Date.now()-21600000).toISOString() },
+  { id:4, suburb:'Soshanguve',     municipality:'City of Tshwane',      description:'Water restored after 3-day outage. Pressure still lower than normal.',            status:'resolved',    latitude:-25.5186, longitude:28.0913, created_at:new Date(Date.now()-3600000).toISOString()  },
+  { id:5, suburb:'Khayelitsha',    municipality:'City of Cape Town',    description:'Scheduled maintenance caused outage. Municipality gave no ETA.',                  status:'reported',    latitude:-34.0332, longitude:18.6766, created_at:new Date(Date.now()-7200000).toISOString()  },
+];
+
+const STORE_KEY = 'ww_outages_v1';
+function loadOutages() { try { const s = JSON.parse(localStorage.getItem(STORE_KEY)); return Array.isArray(s) ? s : [...SEED]; } catch { return [...SEED]; } }
+function saveOutages(o) { localStorage.setItem(STORE_KEY, JSON.stringify(o)); }
+
+// ── Map ───────────────────────────────────────────────────────────────────
+const leafletMap = L.map('map').setView([-29.0, 25.0], 5);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom: 18,
+}).addTo(leafletMap);
+
+const STATUS_COLOR = { reported:'#ea4335', confirmed:'#fa7b17', in_progress:'#fbbc04', resolved:'#34a853' };
+
+function pinIcon(status) {
+  const c = STATUS_COLOR[status] || STATUS_COLOR.reported;
+  return L.divIcon({
+    html: `<svg xmlns="http://www.w3.org/2000/svg" width="26" height="38" viewBox="0 0 26 38"><path d="M13 0C5.8 0 0 5.8 0 13c0 9.1 13 25 13 25S26 22.1 26 13C26 5.8 20.2 0 13 0z" fill="${c}"/><circle cx="13" cy="13" r="5.5" fill="white"/></svg>`,
+    className: '',
+    iconSize: [26, 38],
+    iconAnchor: [13, 38],
+    popupAnchor: [0, -40],
+  });
+}
+
+const markers = {};
+let activeId = null;
+
+function addMarker(o) {
+  const m = L.marker([o.latitude, o.longitude], { icon: pinIcon(o.status) })
+    .bindPopup(`<strong>${o.suburb}, ${o.municipality}</strong><br/><span style="font-size:.8rem">${o.description}</span><br/><span style="display:inline-block;margin-top:5px;padding:2px 8px;border-radius:99px;font-size:.72rem;font-weight:600;background:${STATUS_COLOR[o.status]}22;color:${STATUS_COLOR[o.status]}">${o.status.replace('_',' ')}</span>`)
+    .addTo(leafletMap);
+  m.on('click', () => { setActive(o.id); scrollToCard(o.id); });
+  markers[o.id] = m;
+}
+
+function setActive(id) {
+  activeId = id;
+  document.querySelectorAll('.outage-card').forEach(el => el.classList.toggle('active', +el.dataset.id === id));
+}
+function scrollToCard(id) {
+  const el = document.querySelector(`.outage-card[data-id="${id}"]`);
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+// ── Time helper ───────────────────────────────────────────────────────────
+function timeAgo(iso) {
+  const m = Math.floor((Date.now() - new Date(iso)) / 60000);
+  if (m < 60)   return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24)   return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
+
+// ── Render ────────────────────────────────────────────────────────────────
+function render() {
+  Object.values(markers).forEach(m => leafletMap.removeLayer(m));
+  Object.keys(markers).forEach(k => delete markers[k]);
+
+  const suburb = document.getElementById('fSuburb').value.trim().toLowerCase();
+  const muni   = document.getElementById('fMuni').value.trim().toLowerCase();
+  const status = document.getElementById('fStatus').value;
+
+  const filtered = loadOutages().filter(o => {
+    if (suburb && !o.suburb.toLowerCase().includes(suburb))             return false;
+    if (muni   && !o.municipality.toLowerCase().includes(muni))         return false;
+    if (status && o.status !== status)                                   return false;
+    return true;
+  });
+
+  filtered.forEach(addMarker);
+
+  const list  = document.getElementById('outageList');
+  const count = document.getElementById('sidebarCount');
+  count.textContent = `${filtered.length} outage${filtered.length !== 1 ? 's' : ''} found`;
+
+  if (!filtered.length) { list.innerHTML = '<div class="empty-state">No outages match your filters.</div>'; return; }
+
+  list.innerHTML = filtered.map(o => `
+    <div class="outage-card ${activeId === o.id ? 'active' : ''}" data-id="${o.id}" role="button" tabindex="0">
+      <div class="oc-header">
+        <span class="oc-location">${o.suburb}, ${o.municipality}</span>
+        <span class="badge badge-${o.status}">${o.status.replace('_',' ')}</span>
+      </div>
+      <div class="oc-desc">${o.description}</div>
+      <div class="oc-time">${timeAgo(o.created_at)}</div>
+    </div>`).join('');
+
+  list.querySelectorAll('.outage-card').forEach(card => {
+    const id = +card.dataset.id;
+    card.addEventListener('click', () => {
+      setActive(id);
+      const o = filtered.find(x => x.id === id);
+      if (o && markers[id]) { leafletMap.setView([o.latitude, o.longitude], 12, { animate:true }); markers[id].openPopup(); }
+    });
+  });
+}
+
+// ── Filter events ─────────────────────────────────────────────────────────
+document.getElementById('btnSearch').addEventListener('click', render);
+document.getElementById('btnClear').addEventListener('click', () => {
+  ['fSuburb','fMuni'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fStatus').value = '';
+  render();
+});
+['fSuburb','fMuni'].forEach(id => document.getElementById(id).addEventListener('keydown', e => e.key === 'Enter' && render()));
+document.getElementById('fStatus').addEventListener('change', render);
+
+// ── Tabs ──────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab, .tab-panel').forEach(el => el.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'map') setTimeout(() => leafletMap.invalidateSize(), 50);
+  });
+});
+
+// ── Geolocation ───────────────────────────────────────────────────────────
+document.getElementById('geoBtn').addEventListener('click', () => {
+  const btn = document.getElementById('geoBtn');
+  btn.disabled = true; btn.textContent = 'Getting…';
+  navigator.geolocation.getCurrentPosition(
+    ({ coords }) => {
+      document.getElementById('rLat').value = coords.latitude.toFixed(6);
+      document.getElementById('rLng').value = coords.longitude.toFixed(6);
+      btn.disabled = false; btn.textContent = '\u{1F4CD} My location';
+    },
+    () => {
+      btn.disabled = false; btn.textContent = '\u{1F4CD} My location';
+      showToast(document.getElementById('reportToast'), 'error', 'Could not get location. Enter coordinates manually.');
+    }
+  );
+});
+
+// ── Report form ───────────────────────────────────────────────────────────
+document.getElementById('reportForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const toast = document.getElementById('reportToast');
+  toast.className = 'toast';
+
+  const suburb = document.getElementById('rSuburb').value.trim();
+  const muni   = document.getElementById('rMuni').value.trim();
+  const desc   = document.getElementById('rDesc').value.trim();
+  const lat    = parseFloat(document.getElementById('rLat').value);
+  const lng    = parseFloat(document.getElementById('rLng').value);
+
+  let ok = true;
+  const check = (fId, eId, bad) => { setFieldError(fId, eId, bad); if (bad) ok = false; };
+  check('rSuburb', 'err-rSuburb', !suburb);
+  check('rMuni',   'err-rMuni',   !muni);
+  check('rDesc',   'err-rDesc',   !desc);
+  check('rLat',    'err-rLat',    isNaN(lat) || lat < -35 || lat > -22);
+  check('rLng',    'err-rLng',    isNaN(lng) || lng < 16  || lng > 33);
+
+  if (!ok) { showToast(toast, 'error', 'Please fix the errors above.'); return; }
+
+  const outages = loadOutages();
+  const id = Math.max(...outages.map(o => o.id), 0) + 1;
+  const newOutage = { id, suburb, municipality: muni, description: desc, status: 'reported', latitude: lat, longitude: lng, created_at: new Date().toISOString() };
+  outages.unshift(newOutage);
+  saveOutages(outages);
+
+  showToast(toast, 'success', `Outage reported in ${suburb}! It now appears on the live map.`);
+  e.target.reset();
+
+  // Switch to map and fly to new pin
+  document.querySelectorAll('.tab, .tab-panel').forEach(el => el.classList.remove('active'));
+  document.querySelector('.tab[data-tab="map"]').classList.add('active');
+  document.getElementById('panel-map').classList.add('active');
+  setTimeout(() => {
+    leafletMap.invalidateSize();
+    render();
+    leafletMap.setView([lat, lng], 13, { animate: true });
+    if (markers[id]) markers[id].openPopup();
+  }, 100);
+});
+
+// ── Boot ──────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>

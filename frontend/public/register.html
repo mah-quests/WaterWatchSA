@@ -4,48 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Register — WaterWatch SA</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
-    /* ── Reset & tokens ─────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --blue:       #1a6fb5;
-      --blue-dark:  #124e82;
-      --blue-light: #e8f2fb;
-      --green:      #2e8b57;
-      --error:      #c0392b;
-      --text:       #1a1a1a;
-      --muted:      #5a5a5a;
-      --border:     #c8c8c8;
-      --bg:         #f4f7fb;
-      --white:      #ffffff;
-      --radius:     8px;
-      --shadow:     0 2px 12px rgba(0,0,0,.10);
-    }
-
-    /* ── Layout ─────────────────────────────────────── */
-    body {
-      font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-      font-size: 1rem;
-      color: var(--text);
-      background: var(--bg);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    header {
-      background: var(--blue);
-      color: var(--white);
-      padding: 1rem 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: .75rem;
-    }
-    header svg { flex-shrink: 0; }
-    header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: .01em; }
-    header p  { font-size: .8rem; opacity: .85; }
-
     main {
       flex: 1;
       display: flex;
@@ -54,12 +14,8 @@
     }
 
     .card {
-      background: var(--white);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
       width: 100%;
       max-width: 560px;
-      padding: 2rem;
     }
 
     .card-title {
@@ -74,7 +30,6 @@
       margin-bottom: 1.75rem;
     }
 
-    /* ── Section headings ───────────────────────────── */
     .section-label {
       font-size: .75rem;
       font-weight: 700;
@@ -87,46 +42,6 @@
     }
     .section-label:first-of-type { margin-top: 0; }
 
-    /* ── Form elements ──────────────────────────────── */
-    .field { margin-bottom: 1.1rem; }
-
-    label {
-      display: block;
-      font-size: .875rem;
-      font-weight: 600;
-      margin-bottom: .35rem;
-    }
-    label .required { color: var(--error); margin-left: 2px; }
-    label .hint     { font-weight: 400; color: var(--muted); font-size: .8rem; }
-
-    input[type="text"],
-    input[type="email"],
-    input[type="tel"],
-    input[type="password"],
-    select {
-      width: 100%;
-      padding: .65rem .8rem;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      font-size: 1rem;
-      color: var(--text);
-      background: var(--white);
-      transition: border-color .15s, box-shadow .15s;
-      -webkit-appearance: none;
-      appearance: none;
-    }
-    input:focus,
-    select:focus {
-      outline: none;
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(26,111,181,.18);
-    }
-    input[aria-invalid="true"],
-    select[aria-invalid="true"] {
-      border-color: var(--error);
-    }
-
-    /* Custom select arrow */
     .select-wrap { position: relative; }
     .select-wrap::after {
       content: "▾";
@@ -142,7 +57,6 @@
     .row-2 { display: flex; gap: .75rem; }
     .row-2 .field { flex: 1; }
 
-    /* ── Password strength ───────────────────────────── */
     .strength-bar {
       display: flex;
       gap: 4px;
@@ -155,13 +69,12 @@
       background: var(--border);
       transition: background .25s;
     }
-    .strength-bar.s1 span:nth-child(1) { background: var(--error); }
+    .strength-bar.s1 span:nth-child(1)    { background: var(--error); }
     .strength-bar.s2 span:nth-child(-n+2) { background: #e67e22; }
     .strength-bar.s3 span:nth-child(-n+3) { background: #f1c40f; }
     .strength-bar.s4 span:nth-child(-n+4) { background: var(--green); }
     .strength-text { font-size: .75rem; color: var(--muted); margin-top: .25rem; }
 
-    /* ── Notification checkboxes ─────────────────────── */
     .checkbox-group { display: flex; flex-direction: column; gap: .5rem; }
     .checkbox-item  { display: flex; align-items: center; gap: .55rem; font-size: .9rem; cursor: pointer; }
     .checkbox-item input[type="checkbox"] {
@@ -170,7 +83,6 @@
       accent-color: var(--blue);
     }
 
-    /* ── Terms ───────────────────────────────────────── */
     .terms-row {
       display: flex;
       align-items: flex-start;
@@ -182,7 +94,6 @@
     .terms-row input { margin-top: 2px; flex-shrink: 0; accent-color: var(--blue); }
     .terms-row a { color: var(--blue); }
 
-    /* ── Submit ──────────────────────────────────────── */
     .btn-submit {
       width: 100%;
       margin-top: 1.4rem;
@@ -198,45 +109,9 @@
     }
     .btn-submit:hover  { background: var(--blue-dark); }
     .btn-submit:active { transform: scale(.98); }
-    .btn-submit:focus-visible {
-      outline: 3px solid var(--blue);
-      outline-offset: 3px;
-    }
+    .btn-submit:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
     .btn-submit:disabled { background: var(--border); cursor: not-allowed; }
 
-    /* ── Error / success messages ────────────────────── */
-    .field-error {
-      font-size: .78rem;
-      color: var(--error);
-      margin-top: .25rem;
-      display: none;
-    }
-    .field-error.visible { display: block; }
-
-    .toast {
-      display: none;
-      border-radius: var(--radius);
-      padding: 1rem 1.2rem;
-      font-size: .9rem;
-      margin-bottom: 1rem;
-    }
-    .toast.success { background: #eafaf1; color: #1d6a41; border: 1px solid #27ae60; display: block; }
-    .toast.error   { background: #fdf0ee; color: var(--error); border: 1px solid var(--error); display: block; }
-
-    /* ── Footer ──────────────────────────────────────── */
-    footer {
-      text-align: center;
-      font-size: .78rem;
-      color: var(--muted);
-      padding: 1.2rem;
-    }
-
-    /* ── Accessibility / reduced-motion ─────────────── */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { transition: none !important; }
-    }
-
-    /* ── Responsive ──────────────────────────────────── */
     @media (max-width: 480px) {
       .card { padding: 1.25rem; }
       .row-2 { flex-direction: column; gap: 0; }
@@ -245,7 +120,6 @@
 </head>
 <body>
 
-<!-- ── Header ───────────────────────────────────────── -->
 <header>
   <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
     <circle cx="16" cy="16" r="16" fill="rgba(255,255,255,.15)"/>
@@ -257,7 +131,6 @@
   </div>
 </header>
 
-<!-- ── Main ─────────────────────────────────────────── -->
 <main>
   <div class="card">
     <h2 class="card-title">Create your account</h2>
@@ -267,7 +140,6 @@
 
     <form id="registrationForm" novalidate>
 
-      <!-- Personal details -->
       <p class="section-label">Personal details</p>
 
       <div class="row-2">
@@ -320,7 +192,6 @@
         <p class="field-error" id="err-confirmPassword">Passwords do not match.</p>
       </div>
 
-      <!-- Location -->
       <p class="section-label">Your community</p>
 
       <div class="field">
@@ -369,7 +240,6 @@
         </div>
       </div>
 
-      <!-- Preferences -->
       <p class="section-label">Preferences</p>
 
       <div class="field">
@@ -406,7 +276,6 @@
         </fieldset>
       </div>
 
-      <!-- Terms -->
       <label class="terms-row">
         <input type="checkbox" id="terms" name="terms" required />
         <span>
@@ -425,19 +294,17 @@
 </main>
 
 <footer>
-  &copy; 2026 WaterWatch SA &nbsp;·&nbsp; Derivco Graduate Programme
+  &copy; 2026 WaterWatch SA &nbsp;&middot;&nbsp; Derivco Graduate Programme
 </footer>
 
-<!-- ── Client-side validation (no auth, no backend) ── -->
+<script src="script.js"></script>
 <script>
   const form  = document.getElementById('registrationForm');
   const toast = document.getElementById('toast');
 
-  // ── Password strength ──────────────────────────────
-  const pwInput    = document.getElementById('password');
+  const pwInput      = document.getElementById('password');
   const strengthBar  = document.getElementById('strengthBar');
   const strengthText = document.getElementById('strengthText');
-
   const STRENGTH_LABELS = ['', 'Weak', 'Fair', 'Good', 'Strong'];
 
   function calcStrength(pw) {
@@ -456,80 +323,56 @@
     strengthText.textContent = pwInput.value ? STRENGTH_LABELS[score] : '';
   });
 
-  // ── Show / hide error ─────────────────────────────
-  function setError(fieldId, errorId, invalid) {
-    const input = document.getElementById(fieldId);
-    const error = document.getElementById(errorId);
-    if (!input || !error) return;
-    input.setAttribute('aria-invalid', String(invalid));
-    error.classList.toggle('visible', invalid);
-  }
-
-  // ── Validate all fields ───────────────────────────
   function validate() {
     let ok = true;
-
     const fields = [
       { id: 'firstName',       err: 'err-firstName',       test: v => v.trim().length > 0 },
       { id: 'lastName',        err: 'err-lastName',        test: v => v.trim().length > 0 },
       { id: 'email',           err: 'err-email',           test: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
-      { id: 'phone',           err: 'err-phone',           test: v => /^0[0-9]{9}$/.test(v.replace(/\s/g,'')) },
+      { id: 'phone',           err: 'err-phone',           test: v => /^0[0-9]{9}$/.test(v.replace(/\s/g, '')) },
       { id: 'password',        err: 'err-password',        test: v => v.length >= 8 },
-      { id: 'confirmPassword', err: 'err-confirmPassword', test: v => v === document.getElementById('password').value },
+      { id: 'confirmPassword', err: 'err-confirmPassword', test: v => v === pwInput.value },
       { id: 'province',        err: 'err-province',        test: v => v !== '' },
       { id: 'municipality',    err: 'err-municipality',    test: v => v.trim().length > 0 },
       { id: 'suburb',          err: 'err-suburb',          test: v => v.trim().length > 0 },
     ];
 
     fields.forEach(({ id, err, test }) => {
-      const val = document.getElementById(id).value;
-      const pass = test(val);
-      setError(id, err, !pass);
+      const pass = test(document.getElementById(id).value);
+      setFieldError(id, err, !pass);
       if (!pass) ok = false;
     });
 
-    // Terms checkbox
-    const termsChecked = document.getElementById('terms').checked;
-    setError('terms', 'err-terms', !termsChecked);
-    if (!termsChecked) ok = false;
+    const termsOk = document.getElementById('terms').checked;
+    setFieldError('terms', 'err-terms', !termsOk);
+    if (!termsOk) ok = false;
 
     return ok;
   }
 
-  // ── Submit handler ───────────────────────────────
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     toast.className = 'toast';
     toast.textContent = '';
 
     if (!validate()) {
-      toast.className = 'toast error';
-      toast.textContent = 'Please fix the errors above before continuing.';
-      toast.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      showToast(toast, 'error', 'Please fix the errors above before continuing.');
       return;
     }
 
-    // Collect form data (no backend yet — just log to console)
     const data = Object.fromEntries(new FormData(form).entries());
     data.alertSms   = form.alertSms.checked;
     data.alertEmail = form.alertEmail.checked;
     data.alertPush  = form.alertPush.checked;
     console.log('[WaterWatch SA] Registration payload:', data);
 
-    // Simulate success
     document.getElementById('submitBtn').disabled = true;
-    toast.className = 'toast success';
-    toast.textContent = `Welcome, ${data.firstName}! Your account has been registered. (No backend connected yet — data logged to console.)`;
-    toast.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    showToast(toast, 'success', `Welcome, ${data.firstName}! Your account has been registered. (No backend connected yet — data logged to console.)`);
   });
 
-  // ── Live re-validate on blur ─────────────────────
   form.addEventListener('blur', (e) => {
-    const el = e.target;
-    if (!el.name) return;
-    // only fields with an error element
-    const errEl = document.getElementById('err-' + el.name);
-    if (errEl) validate();
+    if (!e.target.name) return;
+    if (document.getElementById('err-' + e.target.name)) validate();
   }, true);
 </script>
 </body>
